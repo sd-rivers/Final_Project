@@ -1,0 +1,157 @@
+---
+title: "Final Project"
+author: "Shiloh Rivers"
+date: "5/28/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+library(readxl)
+library(tidyverse)
+library(tidymodels)
+library(ISLR)
+library(lubridate)
+library(rpart.plot)
+library(vip)
+library(janitor)
+library(randomForest)
+library(xgboost)
+```
+
+## Words
+
+```{r}
+
+codebook <- read_excel("archive/data (3) (1) (2).xlsx")
+data <- read_excel("archive/data (3) (1) (2).xlsx", 2)
+
+data <- as_tibble(data) %>% 
+  clean_names()
+
+```
+
+standardize and normalize my data
+remove engineTransmission_battery_cc_value_4
+
+```{r}
+
+# test_data <- data %>% 
+#    mutate(inspectionDate = as.Date(inspectionStartTime)) %>% 
+#    select(inspectionDate, everything(), -inspectionStartTime)
+
+test_data <- data %>%
+  mutate(appointment_num = row_number()) %>%
+  select(appointment_num, everything(), -appointment_id)
+
+test_data <- test_data %>%
+  mutate(registration_date = as.Date(paste(year, month, "01", sep = "-"))) %>%
+  select(appointment_num, inspection_start_time, registration_date, everything(), -year, -month)
+
+test_data <- test_data %>% 
+  mutate(engine_transmission_battery_value = as.factor(engine_transmission_battery_value))
+
+levels(test_data$engine_transmission_battery_value)
+
+test_data <- test_data %>%
+  mutate(engine_transmission_battery_cc_value_0 = as.factor(engine_transmission_battery_cc_value_0))
+
+levels(test_data$engine_transmission_battery_cc_value_0)
+
+test_data <- test_data %>%
+  mutate(engine_transmission_battery_cc_value_1 = as.factor(engine_transmission_battery_cc_value_1))
+
+levels(test_data$engine_transmission_battery_cc_value_1)
+
+test_data <- test_data %>%
+  mutate(engine_transmission_battery_cc_value_2 = as.factor(engine_transmission_battery_cc_value_2))
+
+levels(test_data$engine_transmission_battery_cc_value_2)
+
+test_data <- test_data %>%
+  mutate(engine_transmission_battery_cc_value_3 = as.factor(engine_transmission_battery_cc_value_3))
+
+levels(test_data$engine_transmission_battery_cc_value_3)
+
+test_data <- test_data %>%
+  mutate(engine_transmission_battery_cc_value_4 = as.factor(engine_transmission_battery_cc_value_4))
+
+levels(test_data$engine_transmission_battery_cc_value_4)
+
+test_data %>%
+  filter(engine_transmission_battery_cc_value_0 == "Discharging light glowing")
+
+test_data %>%
+  filter(engine_transmission_battery_cc_value_1 == "Discharging light glowing")
+
+test_data %>%
+  filter(engine_transmission_battery_cc_value_2 == "Discharging light glowing")
+
+test_data %>%
+  filter(engine_transmission_battery_cc_value_3 == "Discharging light glowing")
+
+test_data %>% 
+  filter(engine_transmission_battery_value == "No")
+
+```
+
+Engine transmission battery value tells us if the battery is in good working condition or not. Each one of the following 4 variables (engine_transmission_battery_cc_value_0, engine_transmission_battery_cc_value_1, engine_transmission_battery_cc_value_2, engine_transmission_battery_cc_value_3, and engine_transmission_battery_cc_value_4) are each entries in a computer system. The mechanic fills in the first input and if he has some additional information he will continue to the second input, so on so forth. However, the same mechanic is not working everyday. Due to this confoundation, the information is not organized optimally. So I will instead create 5 yes/no factors "Changed", "Discharging light glowing", "Jump Start", "Not Working",and "Weak". Furthermore, the engine_transmission_battery_value yes/no factor is extraneous so it will be removed.
+
+```{r}
+
+test_data %>% 
+  mutate(changed = if_else(engine_transmission_battery_cc_value_0 == "Changed", "Yes", "No")) %>%
+  select(changed)
+
+```
+
+```{r}
+
+set.seed(3435)
+data_split <- initial_split(data, strata = "rating_engine_transmission")
+
+data_train <- training(data_split)
+data_test <- testing(data_split)
+
+hist(data$rating_engine_transmission)
+```
+
+```{r}
+# Lab 7
+
+# turns out starting with the later lab was not efficient
+
+# tree_spec <- decision_tree() %>%
+#   set_engine("rpart")
+# 
+# reg_tree_spec <- tree_spec %>%
+#   set_mode("regression")
+# 
+# reg_tree_fit <- reg_tree_spec %>%
+#   fit(rating_engine_transmission ~ .-appointment_id, data = data_train)
+
+# class_tree_fit %>%
+#   extract_fit_engine() %>%
+#   rpart.plot()
+
+# Tried to plot the decision tree but there are too many variables I think.
+
+# augment(reg_tree_fit, new_data = data_test) %>%
+#   rmse(truth = rating_engine_transmission, estimate = .pred)
+# 
+# augment(class_tree_fit, new_data = data_train) %>%
+#   ggplot(aes(rating_engine_transmission, .pred)) +
+#   geom_abline() +
+#   geom_point(alpha = 0.5)
+# 
+# vip(class_tree_fit)
+
+
+```
+
+```{r}
+
+
+
+```
