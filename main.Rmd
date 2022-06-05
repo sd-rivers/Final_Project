@@ -18,6 +18,8 @@ library(vip)
 library(janitor)
 library(randomForest)
 library(xgboost)
+library(dplyr)
+library(glue)
 ```
 
 ## Words
@@ -79,6 +81,9 @@ test_data <- test_data %>%
 
 levels(test_data$engine_transmission_battery_cc_value_4)
 
+test_data <- test_data %>% 
+  select(everything(), -engine_transmission_battery_cc_value_4)
+
 test_data %>%
   filter(engine_transmission_battery_cc_value_0 == "Discharging light glowing")
 
@@ -100,9 +105,899 @@ Engine transmission battery value tells us if the battery is in good working con
 
 ```{r}
 
-test_data %>% 
-  mutate(changed = if_else(engine_transmission_battery_cc_value_0 == "Changed", "Yes", "No")) %>%
-  select(changed)
+test_data <- test_data %>% 
+  mutate(changed1 = if_else(engine_transmission_battery_cc_value_0 == "Changed", 1, 0, 0)) %>%
+  select(changed1, everything())
+
+test_data <- test_data %>% 
+  mutate(changed2 = if_else(engine_transmission_battery_cc_value_1 == "Changed", 1, 0, 0)) %>%
+  select(changed1, changed2, everything())
+
+test_data <- test_data %>% 
+  mutate(changed3 = if_else(engine_transmission_battery_cc_value_2 == "Changed", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, everything())
+
+test_data <- test_data %>% 
+  mutate(changed4 = if_else(engine_transmission_battery_cc_value_3 == "Changed", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed_engine_transmission_battery = changed1 + changed2 + changed3 + changed4) %>% 
+  mutate(changed_engine_transmission_battery = as.factor(changed_engine_transmission_battery)) %>% 
+  select(appointment_num:registration_date, changed_engine_transmission_battery, everything(), -changed1, -changed2, -changed3, -changed4, -engine_transmission_battery_value)
+
+levels(test_data$changed_engine_transmission_battery)
+
+```
+
+
+```{r}
+
+test_data <- test_data %>% 
+  mutate(changed1 = if_else(engine_transmission_battery_cc_value_0 == "Discharging light glowing", 1, 0, 0)) %>%
+  select(changed1, everything())
+
+test_data <- test_data %>% 
+  mutate(changed2 = if_else(engine_transmission_battery_cc_value_1 == "Discharging light glowing", 1, 0, 0)) %>%
+  select(changed1, changed2, everything())
+
+test_data <- test_data %>% 
+  mutate(changed3 = if_else(engine_transmission_battery_cc_value_2 == "Discharging light glowing", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, everything())
+
+test_data <- test_data %>% 
+  mutate(changed4 = if_else(engine_transmission_battery_cc_value_3 == "Discharging light glowing", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(discharging_light_glowing_engine_transmission_battery = changed1 + changed2 + changed3 + changed4) %>% 
+  mutate(discharging_light_glowing_engine_transmission_battery = as.factor(discharging_light_glowing_engine_transmission_battery)) %>% 
+  select(appointment_num:registration_date, discharging_light_glowing_engine_transmission_battery, everything(), -changed1, -changed2, -changed3, -changed4)
+
+levels(test_data$discharging_light_glowing_engine_transmission_battery)
+
+```
+
+
+```{r}
+
+test_data <- test_data %>% 
+  mutate(changed1 = if_else(engine_transmission_battery_cc_value_0 == "Jump Start", 1, 0, 0)) %>%
+  select(changed1, everything())
+
+test_data <- test_data %>% 
+  mutate(changed2 = if_else(engine_transmission_battery_cc_value_1 == "Jump Start", 1, 0, 0)) %>%
+  select(changed1, changed2, everything())
+
+test_data <- test_data %>% 
+  mutate(changed3 = if_else(engine_transmission_battery_cc_value_2 == "Jump Start", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, everything())
+
+test_data <- test_data %>% 
+  mutate(changed4 = if_else(engine_transmission_battery_cc_value_3 == "Jump Start", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(jump_start_engine_transmission_battery = changed1 + changed2 + changed3 + changed4) %>% 
+  mutate(jump_start_engine_transmission_battery = as.factor(jump_start_engine_transmission_battery)) %>% 
+  select(appointment_num:registration_date, jump_start_engine_transmission_battery, everything(), -changed1, -changed2, -changed3, -changed4)
+
+levels(test_data$jump_start_engine_transmission_battery)
+
+```
+
+
+```{r}
+
+test_data <- test_data %>% 
+  mutate(changed1 = if_else(engine_transmission_battery_cc_value_0 == "Not Working", 1, 0, 0)) %>%
+  select(changed1, everything())
+
+test_data <- test_data %>% 
+  mutate(changed2 = if_else(engine_transmission_battery_cc_value_1 == "Not Working", 1, 0, 0)) %>%
+  select(changed1, changed2, everything())
+
+test_data <- test_data %>% 
+  mutate(changed3 = if_else(engine_transmission_battery_cc_value_2 == "Not Working", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, everything())
+
+test_data <- test_data %>% 
+  mutate(changed4 = if_else(engine_transmission_battery_cc_value_3 == "Not Working", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(not_working_engine_transmission_battery = changed1 + changed2 + changed3 + changed4) %>% 
+  mutate(not_working_engine_transmission_battery = as.factor(not_working_engine_transmission_battery)) %>% 
+  select(appointment_num:registration_date, not_working_engine_transmission_battery, everything(), -changed1, -changed2, -changed3, -changed4)
+
+levels(test_data$not_working_engine_transmission_battery)
+
+```
+
+
+```{r}
+
+test_data <- test_data %>% 
+  mutate(changed1 = if_else(engine_transmission_battery_cc_value_0 == "Weak", 1, 0, 0)) %>%
+  select(changed1, everything())
+
+test_data <- test_data %>% 
+  mutate(changed2 = if_else(engine_transmission_battery_cc_value_1 == "Weak", 1, 0, 0)) %>%
+  select(changed1, changed2, everything())
+
+test_data <- test_data %>% 
+  mutate(changed3 = if_else(engine_transmission_battery_cc_value_2 == "Weak", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, everything())
+
+test_data <- test_data %>% 
+  mutate(changed4 = if_else(engine_transmission_battery_cc_value_3 == "Weak", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(weak_engine_transmission_battery = changed1 + changed2 + changed3 + changed4) %>% 
+  mutate(weak_engine_transmission_battery = as.factor(weak_engine_transmission_battery)) %>% 
+  select(appointment_num:registration_date, weak_engine_transmission_battery, everything(), -changed1, -changed2, -changed3, -changed4, -engine_transmission_battery_cc_value_0, -engine_transmission_battery_cc_value_1, -engine_transmission_battery_cc_value_2, -engine_transmission_battery_cc_value_3)
+
+levels(test_data$weak_engine_transmission_battery)
+
+```
+
+
+```{r}
+levels(as.factor(test_data$engine_transmission_engine_oil_level_dipstick_cc_value_0))
+
+test_data <- test_data %>% 
+  mutate(broken_engine_transmission_engine_oil_level_dipstick = if_else(engine_transmission_engine_oil_level_dipstick_cc_value_0 == "Broken", 1, 0, 0)) %>%
+  mutate(broken_engine_transmission_engine_oil_level_dipstick = as.factor(broken_engine_transmission_engine_oil_level_dipstick)) %>% 
+  select(appointment_num:changed_engine_transmission_battery, broken_engine_transmission_engine_oil_level_dipstick, everything(), -engine_transmission_engineoil_level_dipstick_value, -engine_transmission_engine_oil_level_dipstick_cc_value_0)
+
+levels(test_data$broken_engine_transmission_engine_oil_level_dipstick)
+```
+
+
+```{r}
+
+levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_0))
+levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_1))
+levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_2))
+levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_3))
+levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_4))
+levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_5))
+levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_6))
+levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_7))
+levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_8))
+levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_9))
+```
+
+```{r}
+
+test_data <- test_data %>% 
+  mutate(changed1 = if_else(engine_transmission_engine_oil_cc_value_0 == "Dirty", 1, 0, 0)) %>%
+  select(changed1, everything())
+
+test_data <- test_data %>% 
+  mutate(changed2 = if_else(engine_transmission_engine_oil_cc_value_1 == "Dirty", 1, 0, 0)) %>%
+  select(changed1, changed2, everything())
+
+test_data <- test_data %>% 
+  mutate(changed3 = if_else(engine_transmission_engine_oil_cc_value_2 == "Dirty", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, everything())
+
+test_data <- test_data %>% 
+  mutate(changed4 = if_else(engine_transmission_engine_oil_cc_value_3 == "Dirty", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed5 = if_else(engine_transmission_engine_oil_cc_value_4 == "Dirty", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed6 = if_else(engine_transmission_engine_oil_cc_value_5 == "Dirty", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed7 = if_else(engine_transmission_engine_oil_cc_value_6 == "Dirty", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(dirty_engine_transmission_engine_oil = changed1 + changed2 + changed3 + changed4 + changed5 + changed6 + changed7) %>% 
+  mutate(dirty_engine_transmission_engine_oil = as.factor(dirty_engine_transmission_engine_oil)) %>% 
+  select(appointment_num:broken_engine_transmission_engine_oil_level_dipstick, dirty_engine_transmission_engine_oil, everything(), -changed1, -changed2, -changed3, -changed4, -changed5, -changed6, -changed7)
+
+levels(test_data$dirty_engine_transmission_engine_oil)
+
+```
+
+
+```{r}
+
+test_data <- test_data %>% 
+  mutate(changed1 = if_else(engine_transmission_engine_oil_cc_value_0 == "Leakage from Side cover", 1, 0, 0)) %>%
+  select(changed1, everything())
+
+test_data <- test_data %>% 
+  mutate(changed2 = if_else(engine_transmission_engine_oil_cc_value_1 == "Leakage from Side cover", 1, 0, 0)) %>%
+  select(changed1, changed2, everything())
+
+test_data <- test_data %>% 
+  mutate(changed3 = if_else(engine_transmission_engine_oil_cc_value_2 == "Leakage from Side cover", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, everything())
+
+test_data <- test_data %>% 
+  mutate(changed4 = if_else(engine_transmission_engine_oil_cc_value_3 == "Leakage from Side cover", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed5 = if_else(engine_transmission_engine_oil_cc_value_4 == "Leakage from Side cover", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed6 = if_else(engine_transmission_engine_oil_cc_value_5 == "Leakage from Side cover", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed7 = if_else(engine_transmission_engine_oil_cc_value_6 == "Leakage from Side cover", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(leakage_from_side_engine_transmission_engine_oil = changed1 + changed2 + changed3 + changed4 + changed5 + changed6 + changed7) %>% 
+  mutate(leakage_from_side_engine_transmission_engine_oil = as.factor(leakage_from_side_engine_transmission_engine_oil)) %>% 
+  select(appointment_num:broken_engine_transmission_engine_oil_level_dipstick, leakage_from_side_engine_transmission_engine_oil, everything(), -changed1, -changed2, -changed3, -changed4, -changed5, -changed6, -changed7)
+
+levels(test_data$leakage_from_side_engine_transmission_engine_oil)
+
+```
+
+
+```{r}
+
+test_data <- test_data %>% 
+  mutate(changed1 = if_else(engine_transmission_engine_oil_cc_value_0 == "Leakage from Sump/chamber", 1, 0, 0)) %>%
+  select(changed1, everything())
+
+test_data <- test_data %>% 
+  mutate(changed2 = if_else(engine_transmission_engine_oil_cc_value_1 == "Leakage from Sump/chamber", 1, 0, 0)) %>%
+  select(changed1, changed2, everything())
+
+test_data <- test_data %>% 
+  mutate(changed3 = if_else(engine_transmission_engine_oil_cc_value_2 == "Leakage from Sump/chamber", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, everything())
+
+test_data <- test_data %>% 
+  mutate(changed4 = if_else(engine_transmission_engine_oil_cc_value_3 == "Leakage from Sump/chamber", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed5 = if_else(engine_transmission_engine_oil_cc_value_4 == "Leakage from Sump/chamber", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed6 = if_else(engine_transmission_engine_oil_cc_value_5 == "Leakage from Sump/chamber", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed7 = if_else(engine_transmission_engine_oil_cc_value_6 == "Leakage from Sump/chamber", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(leakage_from_sump_chamber_engine_transmission_engine_oil = changed1 + changed2 + changed3 + changed4 + changed5 + changed6 + changed7) %>% 
+  mutate(leakage_from_sump_chamber_engine_transmission_engine_oil = as.factor(leakage_from_sump_chamber_engine_transmission_engine_oil)) %>% 
+  select(appointment_num:broken_engine_transmission_engine_oil_level_dipstick, leakage_from_sump_chamber_engine_transmission_engine_oil, everything(), -changed1, -changed2, -changed3, -changed4, -changed5, -changed6, -changed7)
+
+levels(test_data$leakage_from_sump_chamber_engine_transmission_engine_oil)
+
+```
+
+```{r}
+
+test_data <- test_data %>% 
+  mutate(changed1 = if_else(engine_transmission_engine_oil_cc_value_0 == "Leakage from Tappet Cover", 1, 0, 0)) %>%
+  select(changed1, everything())
+
+test_data <- test_data %>% 
+  mutate(changed2 = if_else(engine_transmission_engine_oil_cc_value_1 == "Leakage from Tappet Cover", 1, 0, 0)) %>%
+  select(changed1, changed2, everything())
+
+test_data <- test_data %>% 
+  mutate(changed3 = if_else(engine_transmission_engine_oil_cc_value_2 == "Leakage from Tappet Cover", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, everything())
+
+test_data <- test_data %>% 
+  mutate(changed4 = if_else(engine_transmission_engine_oil_cc_value_3 == "Leakage from Tappet Cover", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed5 = if_else(engine_transmission_engine_oil_cc_value_4 == "Leakage from Tappet Cover", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed6 = if_else(engine_transmission_engine_oil_cc_value_5 == "Leakage from Tappet Cover", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed7 = if_else(engine_transmission_engine_oil_cc_value_6 == "Leakage from Tappet Cover", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(leakage_from_tappet_cover_engine_transmission_engine_oil = changed1 + changed2 + changed3 + changed4 + changed5 + changed6 + changed7) %>% 
+  mutate(leakage_from_tappet_cover_engine_transmission_engine_oil = as.factor(leakage_from_tappet_cover_engine_transmission_engine_oil)) %>% 
+  select(appointment_num:broken_engine_transmission_engine_oil_level_dipstick, leakage_from_tappet_cover_engine_transmission_engine_oil, everything(), -changed1, -changed2, -changed3, -changed4, -changed5, -changed6, -changed7)
+
+levels(test_data$leakage_from_tappet_cover_engine_transmission_engine_oil)
+
+```
+
+```{r}
+
+test_data <- test_data %>% 
+  mutate(changed1 = if_else(engine_transmission_engine_oil_cc_value_0 == "Leaking", 1, 0, 0)) %>%
+  select(changed1, everything())
+
+test_data <- test_data %>% 
+  mutate(changed2 = if_else(engine_transmission_engine_oil_cc_value_1 == "Leaking", 1, 0, 0)) %>%
+  select(changed1, changed2, everything())
+
+test_data <- test_data %>% 
+  mutate(changed3 = if_else(engine_transmission_engine_oil_cc_value_2 == "Leaking", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, everything())
+
+test_data <- test_data %>% 
+  mutate(changed4 = if_else(engine_transmission_engine_oil_cc_value_3 == "Leaking", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed5 = if_else(engine_transmission_engine_oil_cc_value_4 == "Leaking", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed6 = if_else(engine_transmission_engine_oil_cc_value_5 == "Leaking", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed7 = if_else(engine_transmission_engine_oil_cc_value_6 == "Leaking", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(leaking_engine_transmission_engine_oil = changed1 + changed2 + changed3 + changed4 + changed5 + changed6 + changed7) %>% 
+  mutate(leaking_engine_transmission_engine_oil = as.factor(leaking_engine_transmission_engine_oil)) %>% 
+  select(appointment_num:broken_engine_transmission_engine_oil_level_dipstick, leaking_engine_transmission_engine_oil, everything(), -changed1, -changed2, -changed3, -changed4, -changed5, -changed6, -changed7)
+
+levels(test_data$leaking_engine_transmission_engine_oil)
+
+```
+
+
+```{r}
+
+test_data <- test_data %>% 
+  mutate(changed1 = if_else(engine_transmission_engine_oil_cc_value_0 == "Leakage from Turbo Charger", 1, 0, 0)) %>%
+  select(changed1, everything())
+
+test_data <- test_data %>% 
+  mutate(changed2 = if_else(engine_transmission_engine_oil_cc_value_1 == "Leakage from Turbo Charger", 1, 0, 0)) %>%
+  select(changed1, changed2, everything())
+
+test_data <- test_data %>% 
+  mutate(changed3 = if_else(engine_transmission_engine_oil_cc_value_2 == "Leakage from Turbo Charger", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, everything())
+
+test_data <- test_data %>% 
+  mutate(changed4 = if_else(engine_transmission_engine_oil_cc_value_3 == "Leakage from Turbo Charger", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed5 = if_else(engine_transmission_engine_oil_cc_value_4 == "Leakage from Turbo Charger", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed6 = if_else(engine_transmission_engine_oil_cc_value_5 == "Leakage from Turbo Charger", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed7 = if_else(engine_transmission_engine_oil_cc_value_6 == "Leakage from Turbo Charger", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(leakage_from_turbo_charger_engine_transmission_engine_oil = changed1 + changed2 + changed3 + changed4 + changed5 + changed6 + changed7) %>% 
+  mutate(leakage_from_turbo_charger_engine_transmission_engine_oil = as.factor(leakage_from_turbo_charger_engine_transmission_engine_oil)) %>% 
+  select(appointment_num:broken_engine_transmission_engine_oil_level_dipstick, leakage_from_turbo_charger_engine_transmission_engine_oil, everything(), -changed1, -changed2, -changed3, -changed4, -changed5, -changed6, -changed7)
+
+levels(test_data$leakage_from_turbo_charger_engine_transmission_engine_oil)
+
+```
+
+
+```{r}
+
+test_data <- test_data %>% 
+  mutate(changed1 = if_else(engine_transmission_engine_oil_cc_value_0 == "Mixed with Coolant", 1, 0, 0)) %>%
+  select(changed1, everything())
+
+test_data <- test_data %>% 
+  mutate(changed2 = if_else(engine_transmission_engine_oil_cc_value_1 == "Mixed with Coolant", 1, 0, 0)) %>%
+  select(changed1, changed2, everything())
+
+test_data <- test_data %>% 
+  mutate(changed3 = if_else(engine_transmission_engine_oil_cc_value_2 == "Mixed with Coolant", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, everything())
+
+test_data <- test_data %>% 
+  mutate(changed4 = if_else(engine_transmission_engine_oil_cc_value_3 == "Mixed with Coolant", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed5 = if_else(engine_transmission_engine_oil_cc_value_4 == "Mixed with Coolant", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed6 = if_else(engine_transmission_engine_oil_cc_value_5 == "Mixed with Coolant", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed7 = if_else(engine_transmission_engine_oil_cc_value_6 == "Mixed with Coolant", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(mixed_with_coolant_engine_transmission_engine_oil = changed1 + changed2 + changed3 + changed4 + changed5 + changed6 + changed7) %>% 
+  mutate(mixed_with_coolant_engine_transmission_engine_oil = as.factor(mixed_with_coolant_engine_transmission_engine_oil)) %>% 
+  select(appointment_num:broken_engine_transmission_engine_oil_level_dipstick, mixed_with_coolant_engine_transmission_engine_oil, everything(), -changed1, -changed2, -changed3, -changed4, -changed5, -changed6, -changed7)
+
+levels(test_data$mixed_with_coolant_engine_transmission_engine_oil)
+
+```
+
+
+
+```{r}
+
+test_data <- test_data %>% 
+  mutate(changed1 = if_else(engine_transmission_engine_oil_cc_value_0 == "Low Pressure warning light glowing", 1, 0, 0)) %>%
+  select(changed1, everything())
+
+test_data <- test_data %>% 
+  mutate(changed2 = if_else(engine_transmission_engine_oil_cc_value_1 == "Low Pressure warning light glowing", 1, 0, 0)) %>%
+  select(changed1, changed2, everything())
+
+test_data <- test_data %>% 
+  mutate(changed3 = if_else(engine_transmission_engine_oil_cc_value_2 == "Low Pressure warning light glowing", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, everything())
+
+test_data <- test_data %>% 
+  mutate(changed4 = if_else(engine_transmission_engine_oil_cc_value_3 == "Low Pressure warning light glowing", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed5 = if_else(engine_transmission_engine_oil_cc_value_4 == "Low Pressure warning light glowing", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed6 = if_else(engine_transmission_engine_oil_cc_value_5 == "Low Pressure warning light glowing", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed7 = if_else(engine_transmission_engine_oil_cc_value_6 == "Low Pressure warning light glowing", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(low_pressure_warning_light_glowing_engine_transmission_engine_oil = changed1 + changed2 + changed3 + changed4 + changed5 + changed6 + changed7) %>% 
+  mutate(low_pressure_warning_light_glowing_engine_transmission_engine_oil = as.factor(low_pressure_warning_light_glowing_engine_transmission_engine_oil)) %>% 
+  select(appointment_num:broken_engine_transmission_engine_oil_level_dipstick, low_pressure_warning_light_glowing_engine_transmission_engine_oil, everything(), -changed1, -changed2, -changed3, -changed4, -changed5, -changed6, -changed7)
+
+levels(test_data$low_pressure_warning_light_glowing_engine_transmission_engine_oil)
+
+```
+
+
+
+```{r}
+
+test_data <- test_data %>% 
+  mutate(changed1 = if_else(engine_transmission_engine_oil_cc_value_0 == "Level Low", 1, 0, 0)) %>%
+  select(changed1, everything())
+
+test_data <- test_data %>% 
+  mutate(changed2 = if_else(engine_transmission_engine_oil_cc_value_1 == "Level Low", 1, 0, 0)) %>%
+  select(changed1, changed2, everything())
+
+test_data <- test_data %>% 
+  mutate(changed3 = if_else(engine_transmission_engine_oil_cc_value_2 == "Level Low", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, everything())
+
+test_data <- test_data %>% 
+  mutate(changed4 = if_else(engine_transmission_engine_oil_cc_value_3 == "Level Low", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed5 = if_else(engine_transmission_engine_oil_cc_value_4 == "Level Low", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed6 = if_else(engine_transmission_engine_oil_cc_value_5 == "Level Low", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(changed7 = if_else(engine_transmission_engine_oil_cc_value_6 == "Level Low", 1, 0, 0)) %>%
+  select(changed1, changed2, changed3, changed4, everything())
+
+test_data <- test_data %>% 
+  mutate(level_low_engine_transmission_engine_oil = changed1 + changed2 + changed3 + changed4 + changed5 + changed6 + changed7) %>% 
+  mutate(level_low_engine_transmission_engine_oil = as.factor(level_low_engine_transmission_engine_oil)) %>% 
+  select(appointment_num:broken_engine_transmission_engine_oil_level_dipstick, level_low_engine_transmission_engine_oil, everything(), -changed1, -changed2, -changed3, -changed4, -changed5, -changed6, -changed7)
+
+test_data <- test_data %>% 
+  select(everything(), -engine_transmission_engine_oil, -engine_transmission_engine_oil_cc_value_0, -engine_transmission_engine_oil_cc_value_1, -engine_transmission_engine_oil_cc_value_2, -engine_transmission_engine_oil_cc_value_3, -engine_transmission_engine_oil_cc_value_4, -engine_transmission_engine_oil_cc_value_5, -engine_transmission_engine_oil_cc_value_6, -engine_transmission_engine_oil_cc_value_7, -engine_transmission_engine_oil_cc_value_8, -engine_transmission_engine_oil_cc_value_9)
+
+levels(test_data$level_low_engine_transmission_engine_oil)
+
+```
+
+
+```{r}
+
+levels(as.factor(test_data$engine_transmission_engine_cc_value_0))
+levels(as.factor(test_data$engine_transmission_engine_cc_value_1))
+levels(as.factor(test_data$engine_transmission_engine_cc_value_2))
+levels(as.factor(test_data$engine_transmission_engine_cc_value_3))
+levels(as.factor(test_data$engine_transmission_engine_cc_value_4))
+levels(as.factor(test_data$engine_transmission_engine_cc_value_5))
+levels(as.factor(test_data$engine_transmission_engine_cc_value_6))
+levels(as.factor(test_data$engine_transmission_engine_cc_value_7))
+levels(as.factor(test_data$engine_transmission_engine_cc_value_8))
+levels(as.factor(test_data$engine_transmission_engine_cc_value_9))
+```
+
+
+```{r}
+# test_data$paste("var","name", sep = "_")
+# for (n in length(levels)){
+# for (m in length(variables)){
+# test_data <- test_data %>% 
+#   mutate(var_name = if_else(variables[m] == levels[n], 1, 0, 0)) %>% 
+#   select(var_name, everything())
+# }}
+# 
+# 
+# minimizer <- function(levels, variables) {
+#   
+# for (n in length(levels)){
+# for (m in length(variables)){
+#   var_name = paste("changed", m, sep = "")
+# test_data <- test_data %>% 
+#   mutate(var_name = if_else(variables[m] == levels[n], 1, 0, 0))
+# 
+# new_variable_name = paste(levels[n], variables[m], sep = "_")
+# 
+# print(new_variable_name)
+# test_data <- test_data %>% 
+#   mutate(new_variable_name = 0)
+# 
+# test_data <- test_data %>% 
+#   mutate(new_variable_name = new_variable_name + var_name) %>% 
+#   select(everything())
+# 
+# }}
+# }
+# 
+# levels <- c("Car not working on Petrol", "Fuel Leakage From Injector", "MIL light glowing", "Misfiring", "Not converting to CNG", "Over heating", "Repaired", "RPM fluctuating", "RPM not increasing", "Seized", "Sump Damaged", "Turbo charger not working")
+# 
+
+# 
+# minimizer(levels,variables)
+# 
+# for (n in length(levels)){
+#   print(paste(levels[n], variables[n]))
+# }
+# 
+# select(appointment_num:broken_engine_transmission_engine_oil_level_dipstick, new_variable_name, everything(), -changed1, -changed2, -changed3, -changed4, -changed5, -changed6, -changed7)
+# mutate(new_variable_name = as.factor(new_variable_name)) %>% 
+# 
+# levels(test_data$new_variable_name)
+
+```
+
+```{r}
+# for (i in 1:5) {
+#   assign(paste("t",files[i],sep=""), read.tucson(files[i],header=NULL))
+# }
+# 
+# assign(paste("t",1, sep = ""), as.list(data$appointment_id))
+# 
+# for(i in test_data)){
+#   name <- paste("t", i, sep = "_")
+#   assign(name,  transpose(df_before_transpose[[i]]))
+# }
+# 
+# m = 1
+# paste("what", 1, sep = "") = c(1,2)
+# shazbot <- data.frame(assign(paste("orca", m, sep = ""), data$appointment_id), assign(paste("orca", m, sep = ""), data$inspection_start_time))
+# 
+# shazbot <- as.tibble(shazbot)
+# 
+# get(paste("orca", 1, sep = ""))
+# rm(orca1)
+# 
+# test_data <- test_data %>% 
+#    transmute(assign(paste("changed", 1, sep = "")))
+# test_data %>% 
+#   select(assign(paste("changed", 1, sep = ""))
+  
+  
+# minimizer <- function(levels, variables) {
+#   
+# for (n in length(levels)){
+# for (m in length(variables)){
+#   assign(paste("changed", m, sep = ""), )
+# test_data <- test_data %>% 
+#   assign(paste("changed", m, sep = ""), 0)
+#   mutate(var_name = if_else(variables[m] == levels[n], 1, 0, 0))
+# 
+# new_variable_name = paste(levels[n], variables[m], sep = "_")
+# 
+# print(new_variable_name)
+# test_data <- test_data %>% 
+#   mutate(new_variable_name = 0)
+# 
+# test_data <- test_data %>% 
+#   mutate(new_variable_name = new_variable_name + var_name) %>% 
+#   select(everything())
+# 
+# }}
+# }
+
+# install.packages("lazyeval")
+# library(lazyeval)
+# from <- "appointment_num"
+# 
+# 
+# data %>%
+#   mutate(diff=interp(~from, from=as.name(from)))
+# 
+# !!as.name(paste("appointment", "num", sep = "_"))
+# 
+# test_data %>%
+#   mutate((!!as.name(paste("changed", 1, sep = ""))) = 0) %>% 
+#   select((!!as.name(paste("changed", 1, sep = ""))))
+# 
+# minimizer <- function(levels, variables) {
+# 
+# for (n in length(levels)){
+# for (m in length(variables)){
+#   
+# test_data <- test_data %>%
+#   mutate(as.name(paste("changed", m, sep = "")) = if_else(variables[m] == levels[n], 1, 0, 0))
+# 
+# new_variable_name = paste(levels[n], variables[m], sep = "_")
+# 
+# print(new_variable_name)
+# test_data <- test_data %>%
+#   mutate(new_variable_name = 0)
+# 
+# test_data <- test_data %>%
+#   mutate(new_variable_name = new_variable_name + var_name) %>%
+#   select(everything())
+# 
+# }}
+# }
+
+
+```
+```{r}
+# 
+# 
+# 
+# multipetal <- function(df, n) {
+#   mutate(df, "petal.{n}" := Petal.Width * n)
+# }
+# 
+# meanofcol <- function(df, col) {
+#   mutate(df, "Mean of {{col}}" := mean({{col}}))
+# }
+# 
+# meanofcol(iris, Petal.Width)
+# 
+# minimizer <- function(levels, variables) {
+# 
+# for (n in length(levels)){
+# for (m in length(variables)){
+# 
+# test_data <- test_data %>%
+#   mutate(as.name(paste("changed", m, sep = "")) = if_else(variables[m] == levels[n], 1, 0, 0))
+# 
+# new_variable_name = paste(levels[n], variables[m], sep = "_")
+# 
+# print(new_variable_name)
+# test_data <- test_data %>%
+#   mutate(new_variable_name = 0)
+# 
+# test_data <- test_data %>%
+#   mutate(new_variable_name = new_variable_name + var_name) %>%
+#   select(everything())
+# 
+# }}
+# }
+
+```
+
+```{r}
+
+multichange <- function(df, z, w) {
+  x = variables[z]
+  y = levels[w]
+  mutate(df, "change{z}" := 1)
+  mutate(df, "change{z}" := if_else(.data[[x]] == y, 1, 0, 0))
+}
+
+variables <- c("engine_transmission_engine_cc_value_0", "engine_transmission_engine_cc_value_1", "engine_transmission_engine_cc_value_2", "engine_transmission_engine_cc_value_3", "engine_transmission_engine_cc_value_4", "engine_transmission_engine_cc_value_5", "engine_transmission_engine_cc_value_6", "engine_transmission_engine_cc_value_7", "engine_transmission_engine_cc_value_8", "engine_transmission_engine_cc_value_9", "engine_transmission_engine_cc_value_10")
+
+levels <- c("Car not working on Petrol", "Fuel Leakage From Injector", "MIL light glowing", "Misfiring", "Not converting to CNG", "Over heating", "Repaired", "RPM fluctuating", "RPM not increasing", "Seized", "Sump Damaged", "Turbo charger not working")
+
+
+
+
+
+
+
+# n = c(1:11)
+# for(i in n){
+#   test_data <- multichange(test_data, i)
+# }
+
+# n = c(1:11)
+# m = c(1:12)
+#m = 4
+for(r in c(1:length(levels))){
+  for(i in c(1:length(variables))){
+    test_data <- multichange(test_data, i, r)
+  }
+    level_name = levels[r]
+    test_data <- test_data %>% 
+      mutate("{level_name}_engine_transmission_engine" := change1 + change2 + change3 + change4 + change5 + change6 + change7 + change8 + change9 + change10 + change11)
+}
+
+test_data <- test_data %>% 
+  clean_names()
+
+test_data <- test_data %>%
+    select(everything(), -change1, -change2, -change3, -change4, -change5, -change6, -change7, -change8, -change9, -change10, -change11, -engine_transmission_engine_cc_value_0, -engine_transmission_engine_cc_value_1, -engine_transmission_engine_cc_value_2, -engine_transmission_engine_cc_value_3, -engine_transmission_engine_cc_value_4, -engine_transmission_engine_cc_value_5, -engine_transmission_engine_cc_value_6, -engine_transmission_engine_cc_value_7, -engine_transmission_engine_cc_value_8, -engine_transmission_engine_cc_value_9, -engine_transmission_engine_cc_value_10, -engine_transmission_engine_value)
+
+test_data <- test_data %>% 
+  mutate(car_not_working_on_petrol_engine_transmission_engine = as.factor(car_not_working_on_petrol_engine_transmission_engine))
+
+test_data <- test_data %>% 
+  mutate(fuel_leakage_from_injector_engine_transmission_engine = as.factor(fuel_leakage_from_injector_engine_transmission_engine))
+
+test_data <- test_data %>% 
+  mutate(mil_light_glowing_engine_transmission_engine = as.factor(mil_light_glowing_engine_transmission_engine))
+
+test_data <- test_data %>% 
+  mutate(misfiring_engine_transmission_engine = as.factor(misfiring_engine_transmission_engine))
+
+test_data <- test_data %>% 
+  mutate(not_converting_to_cng_engine_transmission_engine = as.factor(not_converting_to_cng_engine_transmission_engine))
+
+test_data <- test_data %>% 
+  mutate(over_heating_engine_transmission_engine = as.factor(over_heating_engine_transmission_engine))
+
+test_data <- test_data %>% 
+  mutate(repaired_engine_transmission_engine = as.factor(repaired_engine_transmission_engine))
+
+test_data <- test_data %>% 
+  mutate(rpm_fluctuating_engine_transmission_engine = as.factor(rpm_fluctuating_engine_transmission_engine))
+
+test_data <- test_data %>% 
+  mutate(rpm_not_increasing_engine_transmission_engine = as.factor(rpm_not_increasing_engine_transmission_engine))
+
+test_data <- test_data %>% 
+  mutate(seized_engine_transmission_engine = as.factor(seized_engine_transmission_engine))
+
+test_data <- test_data %>% 
+  mutate(sump_damaged_engine_transmission_engine = as.factor(sump_damaged_engine_transmission_engine))
+
+test_data <- test_data %>% 
+  mutate(turbo_charger_not_working_engine_transmission_engine = as.factor(turbo_charger_not_working_engine_transmission_engine))
+
+
+
+
+# minimizer <- function(levels, variables) {
+# 
+# for (n in length(levels)){
+# for (m in length(variables)){
+#   
+# test_data <- test_data %>%
+#   mutate(as.name(paste("changed", m, sep = "")) = if_else(variables[m] == levels[n], 1, 0, 0))
+# 
+# new_variable_name = paste(levels[n], variables[m], sep = "_")
+# 
+# print(new_variable_name)
+# test_data <- test_data %>%
+#   mutate(new_variable_name = 0)
+# 
+# test_data <- test_data %>%
+#   mutate(new_variable_name = new_variable_name + var_name) %>%
+#   select(everything())
+# 
+# }}
+```
+
+```{r}
+
+levels(as.factor(test_data_copy$engine_transmission_coolant_cc_value_0))
+
+variables <- c("engine_transmission_coolant_cc_value_0", "engine_transmission_coolant_cc_value_1", "engine_transmission_coolant_cc_value_2", "engine_transmission_coolant_cc_value_3")
+
+levels <- c("Dirty", "Leaking", "Mixed with Engine Oil", "Radiator Damaged")
+
+for(r in c(1:length(levels))){
+  for(i in c(1:length(variables))){
+    test_data <- multichange(test_data, i, r)
+  }
+    level_name = levels[r]
+    test_data <- test_data %>% 
+      mutate("{level_name}_engine_transmission_coolant" := change1 + change2 + change3 + change4)
+}
+
+test_data <- test_data %>% 
+  clean_names()
+
+test_data <- test_data %>%
+    select(everything(), -change1, -change2, -change3, -change4, -engine_transmission_coolant_cc_value_0, -engine_transmission_coolant_cc_value_1, -engine_transmission_coolant_cc_value_2, -engine_transmission_coolant_cc_value_3, -engine_transmission_coolant_value)
+
+test_data <- test_data %>% 
+  mutate(dirty_engine_transmission_coolant = as.factor(dirty_engine_transmission_coolant))
+
+test_data <- test_data %>% 
+  mutate(leaking_engine_transmission_coolant = as.factor(leaking_engine_transmission_coolant))
+
+test_data <- test_data %>% 
+  mutate(mixed_with_engine_oil_engine_transmission_coolant = as.factor(mixed_with_coolant_engine_transmission_engine_oil))
+
+test_data <- test_data %>% 
+  mutate(radiator_damaged_engine_transmission_coolant = as.factor(radiator_damaged_engine_transmission_coolant))
+
+```
+
+```{r}
+
+test_data <- test_data_copy
+
+levels(as.factor(test_data_copy$engine_transmission_engine_mounting_cc_value_0))
+
+variables <- c("engine_transmission_engine_mounting_cc_value_0")
+
+levels <- c("Broken", "Excess Vibration", "Loose")
+
+for(r in c(1:length(levels))){
+  for(i in c(1:length(variables))){
+    test_data <- multichange(test_data, i, r)
+  }
+    level_name = levels[r]
+    test_data <- test_data %>% 
+      mutate("{level_name}_engine_transmission_engine_mounting" := change1)
+}
+
+test_data <- test_data %>% 
+  clean_names()
+
+test_data <- test_data %>%
+    select(everything(), -change1, -engine_transmission_engine_mounting_cc_value_0, -engine_transmission_engine_mounting_value)
+
+test_data <- test_data %>% 
+  mutate(broken_engine_transmission_engine_mounting = as.factor(broken_engine_transmission_engine_mounting))
+
+test_data <- test_data %>% 
+  mutate(excess_vibration_engine_transmission_engine_mounting = as.factor(excess_vibration_engine_transmission_engine_mounting))
+
+test_data <- test_data %>% 
+  mutate(loose_engine_transmission_engine_mounting = as.factor(loose_engine_transmission_engine_mounting))
+
+```
+
+
+```{r}
+
+
+
 
 ```
 
