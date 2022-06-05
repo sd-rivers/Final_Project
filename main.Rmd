@@ -959,8 +959,6 @@ test_data <- test_data %>%
 
 ```{r}
 
-test_data <- test_data_copy
-
 levels(as.factor(test_data_copy$engine_transmission_engine_mounting_cc_value_0))
 
 variables <- c("engine_transmission_engine_mounting_cc_value_0")
@@ -996,8 +994,283 @@ test_data <- test_data %>%
 
 ```{r}
 
+levels(as.factor(test_data_copy$engine_transmission_engine_sound_cc_value_0))
+
+variables <- c("engine_transmission_engine_sound_cc_value_0", "engine_transmission_engine_sound_cc_value_1", "engine_transmission_engine_sound_cc_value_2", "engine_transmission_engine_sound_cc_value_3", "engine_transmission_engine_sound_cc_value_4", "engine_transmission_engine_sound_cc_value_5")
+
+levels <- c("Alternator Brg Noise", "Engine Auxiliary Noise", "Injector Noise", "Tappet Noise", "Timing Noise", "Water Pump Brg Noise", "Whistling Noise-Turbo")
+
+for(r in c(1:length(levels))){
+  for(i in c(1:length(variables))){
+    test_data <- multichange(test_data, i, r)
+  }
+    level_name = levels[r]
+    test_data <- test_data %>% 
+      mutate("{level_name}_engine_transmission_engine_sound" := change1 + change2 + change3 + change4 + change5 + change6)
+}
+
+test_data <- test_data %>% 
+  clean_names()
+
+test_data <- test_data %>%
+    select(everything(), -change1, -change2, -change3, -change4, -change5, -change6, -engine_transmission_engine_sound_cc_value_0, -engine_transmission_engine_sound_cc_value_1, -engine_transmission_engine_sound_cc_value_2, -engine_transmission_engine_sound_cc_value_3, -engine_transmission_engine_sound_cc_value_4, -engine_transmission_engine_sound_cc_value_5,  -engine_transmission_engine_sound_value)
+
+test_data <- test_data %>% 
+  mutate(alternator_brg_noise_engine_transmission_engine_sound = as.factor(alternator_brg_noise_engine_transmission_engine_sound))
+
+test_data <- test_data %>% 
+  mutate(engine_auxiliary_noise_engine_transmission_engine_sound = as.factor(engine_auxiliary_noise_engine_transmission_engine_sound))
+
+test_data <- test_data %>% 
+  mutate(injector_noise_engine_transmission_engine_sound = as.factor(injector_noise_engine_transmission_engine_sound))
+
+test_data <- test_data %>% 
+  mutate(tappet_noise_engine_transmission_engine_sound = as.factor(tappet_noise_engine_transmission_engine_sound))
+
+test_data <- test_data %>% 
+  mutate(timing_noise_engine_transmission_engine_sound = as.factor(timing_noise_engine_transmission_engine_sound))
+
+test_data <- test_data %>% 
+  mutate(water_pump_brg_noise_engine_transmission_engine_sound = as.factor(water_pump_brg_noise_engine_transmission_engine_sound))
+
+test_data <- test_data %>% 
+  mutate(whistling_noise_turbo_engine_transmission_engine_sound = as.factor(whistling_noise_turbo_engine_transmission_engine_sound))
 
 
+```
+
+
+```{r}
+
+test_data_copy <- test_data
+
+levels(as.factor(test_data_copy$engine_transmission_exhaust_smoke_cc_value_0))
+
+variables <- c("engine_transmission_exhaust_smoke_cc_value_0")
+
+levels <- c("Black", "Blue", "Leakage from manifold", "Noise from silencer assembly", "Silencer assembly damaged", "White")
+
+for(r in c(1:length(levels))){
+  for(i in c(1:length(variables))){
+    test_data <- multichange(test_data, i, r)
+  }
+    level_name = levels[r]
+    test_data <- test_data %>% 
+      mutate("{level_name}_engine_transmission_exhaust_smoke" := change1)
+}
+
+test_data <- test_data %>% 
+  clean_names()
+
+test_data <- test_data %>%
+    select(everything(), -change1, -engine_transmission_exhaust_smoke_cc_value_0, -engine_transmission_exhaust_smoke_value)
+
+test_data <- test_data %>% 
+  mutate(black_engine_transmission_exhaust_smoke = as.factor(black_engine_transmission_exhaust_smoke))
+
+test_data <- test_data %>% 
+  mutate(blue_engine_transmission_exhaust_smoke = as.factor(blue_engine_transmission_exhaust_smoke))
+
+test_data <- test_data %>% 
+  mutate(leakage_from_manifold_engine_transmission_exhaust_smoke = as.factor(leakage_from_manifold_engine_transmission_exhaust_smoke))
+
+test_data <- test_data %>% 
+  mutate(noise_from_silencer_assembly_engine_transmission_exhaust_smoke = as.factor(noise_from_silencer_assembly_engine_transmission_exhaust_smoke))
+
+test_data <- test_data %>% 
+  mutate(silencer_assembly_damaged_engine_transmission_exhaust_smoke = as.factor(silencer_assembly_damaged_engine_transmission_exhaust_smoke))
+
+test_data <- test_data %>% 
+  mutate(white_engine_transmission_exhaust_smoke = as.factor(white_engine_transmission_exhaust_smoke))
+
+```
+
+```{r}
+
+test_data_copy <- test_data
+
+levels(as.factor(test_data_copy$engine_transmission_engine_blow_by_back_compression_cc_value_0))
+
+variables <- c("engine_transmission_engine_blow_by_back_compression_cc_value_0")
+
+levels <- c("Back Compression Exist", "NO Blow-by", "Oil spillage on Idle", "Perm. blow by & oil spillage on idle", "Perm. Blow By on idle")
+
+for(r in c(1:length(levels))){
+  for(i in c(1:length(variables))){
+    test_data <- multichange(test_data, i, r)
+  }
+    level_name = levels[r]
+    test_data <- test_data %>% 
+      mutate("{level_name}_engine_transmission_engine_blow_by_back_compression" := change1)
+}
+
+test_data <- test_data %>% 
+  clean_names()
+
+test_data <- test_data %>%
+    select(everything(), -change1, -engine_transmission_engine_blow_by_back_compression_cc_value_0, -engine_transmission_engine_blow_by_back_compression_value)
+
+test_data <- test_data %>% 
+  mutate(back_compression_exist_engine_transmission_engine_blow_by_back_compression = as.factor(back_compression_exist_engine_transmission_engine_blow_by_back_compression))
+
+test_data <- test_data %>% 
+  mutate(no_blow_by_engine_transmission_engine_blow_by_back_compression = as.factor(no_blow_by_engine_transmission_engine_blow_by_back_compression))
+
+test_data <- test_data %>% 
+  mutate(oil_spillage_on_idle_engine_transmission_engine_blow_by_back_compression = as.factor(oil_spillage_on_idle_engine_transmission_engine_blow_by_back_compression))
+
+test_data <- test_data %>% 
+  mutate(perm_blow_by_oil_spillage_on_idle_engine_transmission_engine_blow_by_back_compression = as.factor(perm_blow_by_oil_spillage_on_idle_engine_transmission_engine_blow_by_back_compression))
+
+test_data <- test_data %>% 
+  mutate(perm_blow_by_on_idle_engine_transmission_engine_blow_by_back_compression = as.factor(perm_blow_by_on_idle_engine_transmission_engine_blow_by_back_compression))
+
+```
+
+```{r}
+
+test_data_copy <- test_data
+
+levels(as.factor(test_data_copy$engine_transmission_clutch_cc_value_0))
+
+variables <- c("engine_transmission_clutch_cc_value_0", "engine_transmission_clutch_cc_value_1", "engine_transmission_clutch_cc_value_2", "engine_transmission_clutch_cc_value_3", "engine_transmission_clutch_cc_value_4", "engine_transmission_clutch_cc_value_5", "engine_transmission_clutch_cc_value_6")
+
+levels <- c("Auto Transmission Not Satisfactory", "Bearing Noise", "Burning", "Hard", "Low Pick Up", "Slip", "Spongy")
+
+for(r in c(1:length(levels))){
+  for(i in c(1:length(variables))){
+    test_data <- multichange(test_data, i, r)
+  }
+    level_name = levels[r]
+    test_data <- test_data %>% 
+      mutate("{level_name}_engine_transmission_clutch" := change1 + change2 + change3 + change4 + change5 + change6 + change7)
+}
+
+test_data <- test_data %>% 
+  clean_names()
+
+test_data <- test_data %>%
+    select(everything(), -change1, -change2, -change3, -change4, -change5, -change6, -change7, -engine_transmission_clutch_cc_value_0, -engine_transmission_clutch_cc_value_1, -engine_transmission_clutch_cc_value_2, -engine_transmission_clutch_cc_value_3, -engine_transmission_clutch_cc_value_4, -engine_transmission_clutch_cc_value_5, -engine_transmission_clutch_cc_value_6, -engine_transmission_clutch_value)
+
+test_data <- test_data %>% 
+  mutate(auto_transmission_not_satisfactory_engine_transmission_clutch = as.factor(auto_transmission_not_satisfactory_engine_transmission_clutch))
+
+test_data <- test_data %>% 
+  mutate(bearing_noise_engine_transmission_clutch = as.factor(bearing_noise_engine_transmission_clutch))
+
+test_data <- test_data %>% 
+  mutate(burning_engine_transmission_clutch = as.factor(burning_engine_transmission_clutch))
+
+test_data <- test_data %>% 
+  mutate(hard_engine_transmission_clutch = as.factor(hard_engine_transmission_clutch))
+
+test_data <- test_data %>% 
+  mutate(low_pick_up_engine_transmission_clutch = as.factor(low_pick_up_engine_transmission_clutch))
+
+test_data <- test_data %>% 
+  mutate(slip_engine_transmission_clutch = as.factor(slip_engine_transmission_clutch))
+
+test_data <- test_data %>% 
+  mutate(spongy_engine_transmission_clutch = as.factor(spongy_engine_transmission_clutch))
+
+```
+
+```{r}
+
+test_data_copy <- test_data
+
+levels(as.factor(test_data_copy$engine_transmission_gear_shifting_cc_value_0))
+
+variables <- c("engine_transmission_gear_shifting_cc_value_0", "engine_transmission_gear_shifting_cc_value_1", "engine_transmission_gear_shifting_cc_value_2")
+
+levels <- c("Abnormal Noise", "Automatic Transmission not working properly", "Hard", "Not Engaging")
+
+for(r in c(1:length(levels))){
+  for(i in c(1:length(variables))){
+    test_data <- multichange(test_data, i, r)
+  }
+    level_name = levels[r]
+    test_data <- test_data %>% 
+      mutate("{level_name}_engine_transmission_gear_shifting" := change1 + change2 + change3)
+}
+
+test_data <- test_data %>% 
+  clean_names()
+
+test_data <- test_data %>%
+    select(everything(), -change1, -change2, -change3, -engine_transmission_gear_shifting_cc_value_0, -engine_transmission_gear_shifting_cc_value_1, -engine_transmission_gear_shifting_cc_value_2, -engine_transmission_gear_shifting_value)
+
+test_data <- test_data %>% 
+  mutate(abnormal_noise_engine_transmission_gear_shifting = as.factor(abnormal_noise_engine_transmission_gear_shifting))
+
+test_data <- test_data %>% 
+  mutate(automatic_transmission_not_working_properly_engine_transmission_gear_shifting = as.factor(automatic_transmission_not_working_properly_engine_transmission_gear_shifting))
+
+test_data <- test_data %>% 
+  mutate(hard_engine_transmission_gear_shifting = as.factor(hard_engine_transmission_gear_shifting))
+
+test_data <- test_data %>% 
+  mutate(not_engaging_engine_transmission_gear_shifting = as.factor(not_engaging_engine_transmission_gear_shifting))
+
+```
+
+```{r}
+
+test_data_copy <- test_data
+
+levels(as.factor(test_data_copy$engine_transmission_comments_value_0))
+# levels(as.factor(test_data_copy$engine_transmission_comments_value_1))
+# levels(as.factor(test_data_copy$engine_transmission_comments_value_2))
+# levels(as.factor(test_data_copy$engine_transmission_comments_value_3))
+# levels(as.factor(test_data_copy$engine_transmission_comments_value_4))
+
+variables <- c("engine_transmission_comments_value_0", "engine_transmission_comments_value_1", "engine_transmission_comments_value_2", "engine_transmission_comments_value_3", "engine_transmission_comments_value_4")
+
+levels <- c("4WD / AWD not working", "Car not in running condition, towing required", "Electrical wiring Damaged", "Pickup Low", "Radiator Fan not working", "Starter Motor / Solenoid malfunctioning")
+
+for(r in c(1:length(levels))){
+  for(i in c(1:length(variables))){
+    test_data <- multichange(test_data, i, r)
+  }
+    level_name = levels[r]
+    test_data <- test_data %>% 
+      mutate("{level_name}_engine_transmission_comments" := change1 + change2 + change3 + change4 + change5)
+}
+
+test_data <- test_data %>% 
+  clean_names()
+
+test_data <- test_data %>%
+    select(everything(), -change1, -change2, -change3, -change4, -change5, -engine_transmission_comments_value_0, -engine_transmission_comments_value_1, -engine_transmission_comments_value_2, -engine_transmission_comments_value_3, -engine_transmission_comments_value_4)
+
+test_data <- test_data %>% 
+  mutate(x4wd_awd_not_working_engine_transmission_comments = as.factor(x4wd_awd_not_working_engine_transmission_comments))
+
+test_data <- test_data %>% 
+  mutate(car_not_in_running_condition_towing_required_engine_transmission_comments = as.factor(car_not_in_running_condition_towing_required_engine_transmission_comments))
+
+test_data <- test_data %>% 
+  mutate(electrical_wiring_damaged_engine_transmission_comments = as.factor(electrical_wiring_damaged_engine_transmission_comments))
+
+test_data <- test_data %>% 
+  mutate(pickup_low_engine_transmission_comments = as.factor(pickup_low_engine_transmission_comments))
+
+test_data <- test_data %>% 
+  mutate(radiator_fan_not_working_engine_transmission_comments = as.factor(radiator_fan_not_working_engine_transmission_comments))
+
+test_data <- test_data %>% 
+  mutate(starter_motor_solenoid_malfunctioning_engine_transmission_comments = as.factor(starter_motor_solenoid_malfunctioning_engine_transmission_comments))
+
+```
+
+```{r}
+
+test_data_copy <- test_data
+
+levels(as.factor(test_data_copy$fuel_type))
+
+test_data <- test_data %>% 
+  mutate(fuel_type = as.factor(fuel_type))
 
 ```
 
