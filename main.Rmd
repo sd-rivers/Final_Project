@@ -20,6 +20,20 @@ library(randomForest)
 library(xgboost)
 library(dplyr)
 library(glue)
+library(ISLR2)
+library(discrim)
+library(poissonreg)
+library(corrr)
+library(klaR)
+library(corrplot)
+library(glmnet)
+library(parsnip)
+library(tune)
+library(modeldata)
+library(workflows)
+library(ranger)
+library(vip)
+tidymodels_prefer()
 ```
 
 ## Words
@@ -922,7 +936,7 @@ test_data <- test_data %>%
 
 ```{r}
 
-levels(as.factor(test_data_copy$engine_transmission_coolant_cc_value_0))
+levels(as.factor(test_data$engine_transmission_coolant_cc_value_0))
 
 variables <- c("engine_transmission_coolant_cc_value_0", "engine_transmission_coolant_cc_value_1", "engine_transmission_coolant_cc_value_2", "engine_transmission_coolant_cc_value_3")
 
@@ -959,7 +973,7 @@ test_data <- test_data %>%
 
 ```{r}
 
-levels(as.factor(test_data_copy$engine_transmission_engine_mounting_cc_value_0))
+levels(as.factor(test_data$engine_transmission_engine_mounting_cc_value_0))
 
 variables <- c("engine_transmission_engine_mounting_cc_value_0")
 
@@ -994,7 +1008,7 @@ test_data <- test_data %>%
 
 ```{r}
 
-levels(as.factor(test_data_copy$engine_transmission_engine_sound_cc_value_0))
+levels(as.factor(test_data$engine_transmission_engine_sound_cc_value_0))
 
 variables <- c("engine_transmission_engine_sound_cc_value_0", "engine_transmission_engine_sound_cc_value_1", "engine_transmission_engine_sound_cc_value_2", "engine_transmission_engine_sound_cc_value_3", "engine_transmission_engine_sound_cc_value_4", "engine_transmission_engine_sound_cc_value_5")
 
@@ -1044,7 +1058,7 @@ test_data <- test_data %>%
 
 test_data_copy <- test_data
 
-levels(as.factor(test_data_copy$engine_transmission_exhaust_smoke_cc_value_0))
+levels(as.factor(test_data$engine_transmission_exhaust_smoke_cc_value_0))
 
 variables <- c("engine_transmission_exhaust_smoke_cc_value_0")
 
@@ -1277,12 +1291,190 @@ test_data <- test_data %>%
 ```{r}
 
 set.seed(3435)
-data_split <- initial_split(data, strata = "rating_engine_transmission")
+data_split <- initial_split(test_data, strata = "rating_engine_transmission")
 
 data_train <- training(data_split)
 data_test <- testing(data_split)
 
+data_folds <- vfold_cv(data_train, v = 5, strata = "rating_engine_transmission")
+
 hist(data$rating_engine_transmission)
+```
+
+```{r}
+
+recipe <- recipe(rating_engine_transmission ~ ., data = data_train) %>%
+  step_dummy(all_nominal_predictors()) %>% 
+  step_center(all_nominal_predictors()) %>% 
+  step_scale(all_nominal_predictors())
+
+# recipe_class <- recipe(rating_engine_transmission ~ ., data = data_train) %>%
+#   step_dummy(all_nominal_predictors()) %>% 
+#   step_center(all_nominal_predictors()) %>% 
+#   step_scale(all_nominal_predictors()) %>% 
+#   step_num2factor(rating_engine_transmission, levels = c("0.5","1.0","1.5","2.0","2.5","3.0","3.5","4.0","4.5","5.0"))
+
+lm_model <- linear_reg() %>% 
+  set_engine("lm")
+
+lm_wflow <- workflow() %>% 
+  add_model(lm_model) %>% 
+  add_recipe(recipe)
+
+lm_fit <- fit(lm_wflow, data_train)
+
+
+train_res <- predict(lm_fit, new_data = data_train)
+train_res <- bind_cols(train_res, data_train %>% select(rating_engine_transmission))
+
+metrics <- metric_set(rmse, rsq, mae)
+metrics(train_res, truth = rating_engine_transmission, 
+                estimate = .pred)
+
+
+```
+
+Roughly 43% of the variation in engine transmission rating is explained by this linear model.
+
+```{r}
+
+data_train %>% 
+  ggplot(aes(x = weak_engine_transmission_battery)) +
+  geom_bar()
+
+table <- data_train %>% 
+  group_by(weak_engine_transmission_battery) %>% 
+  summarise(count = n())
+
+table[2,2]/table[1,2]
+
+data_train %>% 
+  ggplot(aes(x = broken_engine_transmission_engine_oil_level_dipstick)) +
+  geom_bar()
+
+table <- data_train %>% 
+  group_by(broken_engine_transmission_engine_oil_level_dipstick) %>% 
+  summarise(count = n())
+
+table[2,2]/table[1,2]
+
+data_train %>% 
+  ggplot(aes(x = sump_damaged_engine_transmission_engine)) +
+  geom_bar()
+
+table <- data_train %>% 
+  group_by(sump_damaged_engine_transmission_engine) %>% 
+  summarise(count = n())
+
+table[2,2]/table[1,2]
+
+```
+
+```{r}
+
+cor_data_train <- data_train %>%
+  select(is.numeric) %>%
+  correlate(use="complete.obs")
+
+rplot(cor_data_train)
+
+```
+
+```{r}
+
+data_train %>% 
+  group_by(rating_engine_transmission) %>% 
+  summarise(count = n())
+
+
+
+```
+
+
+```{r}
+
+# log_reg <- logistic_reg() %>% 
+#   set_engine("glm") %>% 
+#   set_mode("classification")
+# 
+# log_wkflow <- workflow() %>% 
+#   add_model(log_reg) %>% 
+#   add_recipe(recipe)
+# 
+# log_fit <- fit(log_wkflow, data_train)
+
+```
+
+
+
+```{r}
+
+tree_spec <- decision_tree() %>%
+  set_engine("rpart")
+
+class_tree_spec <- tree_spec %>%
+  set_mode("regression")
+
+class_tree_wf <- workflow() %>%
+  add_model(class_tree_spec %>% set_args(cost_complexity = tune())) %>%
+  add_recipe(recipe)
+
+param_grid <- grid_regular(cost_complexity(range = c(-5, -1)), levels = 10)
+
+# tune_res1 <- tune_grid(
+#   class_tree_wf, 
+#   resamples = data_folds, 
+#   grid = param_grid, 
+#   metrics = metric_set(rmse, rsq, mae)
+# )
+
+#save(tune_res1, file = "tune_res1.rda")
+load(file = "tune_res1.rda")
+
+autoplot(tune_res1)
+
+
+head(filter(arrange(collect_metrics(tune_res1), mean), .metric == "mae"))
+
+head(filter(arrange(collect_metrics(tune_res1), mean), .metric == "rmse"))
+
+head(filter(arrange(collect_metrics(tune_res1), desc(mean)), .metric == "rsq"))
+
+
+best_complexity <- select_best(tune_res1)
+
+class_tree_final <- finalize_workflow(class_tree_wf, best_complexity)
+
+class_tree_final_fit <- fit(class_tree_final, data = data_train)
+
+class_tree_final_fit %>%
+  extract_fit_engine() %>%
+  rpart.plot()
+```
+```{r}
+
+class_rf_spec <- rand_forest() %>%
+  set_engine(engine = "ranger", importance = "impurity") %>%
+  set_mode("regression")
+
+class_rf_wf <- workflow() %>%
+  add_model(class_rf_spec %>% set_args(mtry = tune(), trees = tune(), min_n = tune())) %>%
+  add_recipe(recipe)
+
+param_grid <- grid_regular(mtry(range = c(7, 9)), trees(range = c(250,2000)), min_n(range = c(10,300)), levels = 5)
+
+
+tune_res2 <- tune_grid(
+   class_rf_wf,
+   resamples = data_folds,
+   grid = param_grid,
+   metrics = metric_set(rmse, rsq, mae)
+)
+
+save(tune_res2, file = "data/tune_res2.rda")
+load(file = "data/tune_res2.rda")
+
+autoplot(tune_res2)
 ```
 
 ```{r}
