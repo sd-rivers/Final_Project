@@ -33,9 +33,15 @@ library(modeldata)
 library(workflows)
 library(ranger)
 library(vip)
+library(kernlab)
+library(vembedr)
 tidymodels_prefer()
 ```
 
+
+```{r}
+embed_youtube("RQWejyx0gi8")
+```
 ## Words
 
 ```{r}
@@ -1331,6 +1337,9 @@ metrics <- metric_set(rmse, rsq, mae)
 metrics(train_res, truth = rating_engine_transmission, 
                 estimate = .pred)
 
+augment(lm_fit, new_data = data_test) %>%
+  ggplot(aes(rating_engine_transmission, .pred)) +
+  geom_point(alpha = 0.5)
 
 ```
 
@@ -1450,31 +1459,95 @@ class_tree_final_fit <- fit(class_tree_final, data = data_train)
 class_tree_final_fit %>%
   extract_fit_engine() %>%
   rpart.plot()
+
+augment(class_tree_final_fit, new_data = data_test) %>%
+  ggplot(aes(rating_engine_transmission, .pred)) +
+  geom_point(alpha = 0.5)
+
+augment(class_tree_final_fit, new_data = data_test) %>%
+  rmse(truth = rating_engine_transmission, estimate = .pred)
 ```
 ```{r}
 
-class_rf_spec <- rand_forest() %>%
+reg_rf_spec <- rand_forest() %>%
   set_engine(engine = "ranger", importance = "impurity") %>%
   set_mode("regression")
 
-class_rf_wf <- workflow() %>%
-  add_model(class_rf_spec %>% set_args(mtry = tune(), trees = tune(), min_n = tune())) %>%
+reg_rf_wf <- workflow() %>%
+  add_model(reg_rf_spec %>% set_args(mtry = 8, trees = 1000, min_n = 100)) %>%
   add_recipe(recipe)
 
 param_grid <- grid_regular(mtry(range = c(7, 9)), trees(range = c(250,2000)), min_n(range = c(10,300)), levels = 5)
 
+# tune_res2 <- tune_grid(
+#    class_rf_wf,
+#    resamples = data_folds,
+#    grid = param_grid,
+#    metrics = metric_set(rmse, rsq, mae)
+# )
 
-tune_res2 <- tune_grid(
-   class_rf_wf,
-   resamples = data_folds,
-   grid = param_grid,
-   metrics = metric_set(rmse, rsq, mae)
-)
+# save(tune_res2, file = "data/tune_res2.rda")
+# load(file = "data/tune_res2.rda")
+# 
+# autoplot(tune_res2)
 
-save(tune_res2, file = "data/tune_res2.rda")
-load(file = "data/tune_res2.rda")
+#class_rf_final <- finalize_workflow(class_rf_wf, best_complexity)
 
-autoplot(tune_res2)
+#reg_rf__fit <- fit(reg_rf_wf, data = data_train)
+
+#save(reg_rf__fit, file = "reg_rf__fit.rda")
+load(file = "reg_rf__fit.rda")
+
+reg_rf__fit %>%
+  pull_workflow_fit()%>%
+  vip()
+
+augment(reg_rf__fit, new_data = data_test) %>%
+  ggplot(aes(rating_engine_transmission, .pred)) +
+  geom_point(alpha = 0.5)
+
+augment(reg_rf__fit, new_data = data_test) %>%
+  rmse(truth = rating_engine_transmission, estimate = .pred)
+```
+
+```{r}
+
+reg_rf_spec <- boost_tree() %>%
+  set_engine(engine = "xgboost") %>%
+  set_mode("regression")
+
+recipe2 <- recipe(rating_engine_transmission ~ ., data = data_train) %>%
+  step_dummy(all_nominal_predictors()) %>%
+  step_center(all_nominal_predictors()) %>%
+  step_scale(all_nominal_predictors()) %>%
+  step_rm(inspection_start_time, registration_date)
+
+reg_rf_wf <- workflow() %>%
+  add_model(reg_rf_spec %>% set_args(trees = 1000)) %>%
+  add_recipe(recipe2)
+
+param_grid <- grid_regular(trees(range = c(10,2000)), levels = 5)
+
+# tune_res3 <- tune_grid(
+#    reg_rf_wf,
+#    resamples = data_folds,
+#    grid = param_grid,
+#    metrics = metric_set(rmse, rsq, mae)
+# )
+
+#class_rf_final <- finalize_workflow(class_rf_wf, best_complexity)
+
+#reg_rf_fit2 <- fit(reg_rf_wf, data = data_train)
+# 
+#save(reg_rf_fit2, file = "reg_rf_fit2.rda")
+load(file = "reg_rf_fit2.rda")
+
+augment(reg_rf_fit2, new_data = data_test) %>%
+  ggplot(aes(rating_engine_transmission, .pred)) +
+  geom_point(alpha = 0.5)
+
+augment(reg_rf_fit2, new_data = data_test) %>%
+  rmse(truth = rating_engine_transmission, estimate = .pred)
 ```
 
 ```{r}
@@ -1512,6 +1585,15 @@ autoplot(tune_res2)
 
 ```{r}
 
-
+# svm_linear_spec <- svm_poly(degree = 1) %>%
+#   set_mode("regression") %>%
+#   set_engine("kernlab", scaled = FALSE)
+# 
+# 
+# svm_linear_fit <- svm_linear_spec %>% 
+#   set_args(cost = 10) %>%
+#   fit(rating_engine_transmission ~ ., data = data_train)
+# 
+# svm_linear_fit
 
 ```
