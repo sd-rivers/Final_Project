@@ -2,7 +2,11 @@
 title: "Final Project"
 author: "Shiloh Rivers"
 date: "5/28/2022"
-output: html_document
+output: 
+  html_document:
+      toc: true
+      toc_float: true
+      code_folding: show
 ---
 
 ```{r setup, include=FALSE}
@@ -38,11 +42,19 @@ library(vembedr)
 tidymodels_prefer()
 ```
 
+# Vehicle Inspection Data
+
+Just how useful is a vehicle inspection by a licensed mechanic? In this project we will explore a data set collected by mechanics during inspection of tranmissions.
+
+## Background
+
+If you are unfamiliar with transmissions feel free to give this highly informative video a whirl:
 
 ```{r}
 embed_youtube("RQWejyx0gi8")
 ```
-## Words
+
+## About this Data Set
 
 ```{r}
 
@@ -54,8 +66,11 @@ data <- as_tibble(data) %>%
 
 ```
 
-standardize and normalize my data
-remove engineTransmission_battery_cc_value_4
+This data set includes the appointment ID of the inspection along with a multitude of information collected by the mechanics. To begin with the registration date of the vehicle is included. Continuing we have information regarding the health of the battery, the level of the oil according to the dipstick, the quality of the oil present, the repair of the transmission itself, the coolant levels, the transmission's mounting, any sound or smoke exuding, the operation of the gearshift, and finally any additional comments.
+
+The way that this information is stored on the csv is very interesting. Each general category is included as a yes/no character datatype. Then additional information is included as comments by the mechanic. This additional information has little to no organization. Because of this I spent a large amount of my time cleaning the data.
+
+## Data Cleaning
 
 ```{r}
 
@@ -84,44 +99,55 @@ levels(test_data$engine_transmission_battery_cc_value_0)
 test_data <- test_data %>%
   mutate(engine_transmission_battery_cc_value_1 = as.factor(engine_transmission_battery_cc_value_1))
 
-levels(test_data$engine_transmission_battery_cc_value_1)
+#levels(test_data$engine_transmission_battery_cc_value_1)
 
 test_data <- test_data %>%
   mutate(engine_transmission_battery_cc_value_2 = as.factor(engine_transmission_battery_cc_value_2))
 
-levels(test_data$engine_transmission_battery_cc_value_2)
+#levels(test_data$engine_transmission_battery_cc_value_2)
 
 test_data <- test_data %>%
   mutate(engine_transmission_battery_cc_value_3 = as.factor(engine_transmission_battery_cc_value_3))
 
-levels(test_data$engine_transmission_battery_cc_value_3)
+#levels(test_data$engine_transmission_battery_cc_value_3)
 
 test_data <- test_data %>%
   mutate(engine_transmission_battery_cc_value_4 = as.factor(engine_transmission_battery_cc_value_4))
 
-levels(test_data$engine_transmission_battery_cc_value_4)
+#levels(test_data$engine_transmission_battery_cc_value_4)
 
 test_data <- test_data %>% 
   select(everything(), -engine_transmission_battery_cc_value_4)
 
-test_data %>%
-  filter(engine_transmission_battery_cc_value_0 == "Discharging light glowing")
-
-test_data %>%
-  filter(engine_transmission_battery_cc_value_1 == "Discharging light glowing")
-
-test_data %>%
-  filter(engine_transmission_battery_cc_value_2 == "Discharging light glowing")
-
-test_data %>%
-  filter(engine_transmission_battery_cc_value_3 == "Discharging light glowing")
-
-test_data %>% 
-  filter(engine_transmission_battery_value == "No")
+# test_data %>%
+#   filter(engine_transmission_battery_cc_value_0 == "Discharging light glowing")
+# 
+# test_data %>%
+#   filter(engine_transmission_battery_cc_value_1 == "Discharging light glowing")
+# 
+# test_data %>%
+#   filter(engine_transmission_battery_cc_value_2 == "Discharging light glowing")
+# 
+# test_data %>%
+#   filter(engine_transmission_battery_cc_value_3 == "Discharging light glowing")
+# 
+# test_data %>% 
+#   filter(engine_transmission_battery_value == "No")
 
 ```
 
-Engine transmission battery value tells us if the battery is in good working condition or not. Each one of the following 4 variables (engine_transmission_battery_cc_value_0, engine_transmission_battery_cc_value_1, engine_transmission_battery_cc_value_2, engine_transmission_battery_cc_value_3, and engine_transmission_battery_cc_value_4) are each entries in a computer system. The mechanic fills in the first input and if he has some additional information he will continue to the second input, so on so forth. However, the same mechanic is not working everyday. Due to this confoundation, the information is not organized optimally. So I will instead create 5 yes/no factors "Changed", "Discharging light glowing", "Jump Start", "Not Working",and "Weak". Furthermore, the engine_transmission_battery_value yes/no factor is extraneous so it will be removed.
+I will begin with the engine transmission battery block. This value tells us if the battery is in good working condition or not. Each one of the following 4 variables (engine_transmission_battery_cc_value_0, engine_transmission_battery_cc_value_1, engine_transmission_battery_cc_value_2, engine_transmission_battery_cc_value_3, and engine_transmission_battery_cc_value_4) are each entries in a computer system that further describe the working condition of the battery. For example engine_transmission_battery_cc_value_0 tells us if the battery needs to be changed, if the discharging light is glowing, if it needs a jump start, if it's not working, or if it's weak. The additional variables contain more information.
+
+![ ](bolts.jpg)
+
+
+As mentioned the mechanic fills in the first input and if he has some additional information he will continue to the second input, so on so forth. However, the same mechanic is not working everyday. Due to this confoundation, the information is not organized optimally. So I will instead create 5 yes/no factors "Changed", "Discharging light glowing", "Jump Start", "Not Working",and "Weak". Furthermore, the engine_transmission_battery_value yes/no factor is extraneous so it will be removed.
+
+Initially, I thought that this would be unique to this portion of the data cleaning so my method was not as efficient as it could have been. I started with the battery changed tag. I created 4 variables to identify if the mechanic wrote down "change" for each of the input values related to the battery. It would have been 5 but the final entry "engine_transmission_battery_cc_value_4" was actually a completely empty set.
+
+![ ](bolt and nut labelled.jpg)
+
+Then I merged each of the 5 identifiers into a single column. I named this column "changed_engine_transmission_battery". I did the exact same thing for each of the other identifiers. After all of that, and confirming that the rows did add up to the expected value, I removed the now unnecessary and previously disorganized data columns.
 
 ```{r}
 
@@ -146,7 +172,7 @@ test_data <- test_data %>%
   mutate(changed_engine_transmission_battery = as.factor(changed_engine_transmission_battery)) %>% 
   select(appointment_num:registration_date, changed_engine_transmission_battery, everything(), -changed1, -changed2, -changed3, -changed4, -engine_transmission_battery_value)
 
-levels(test_data$changed_engine_transmission_battery)
+#levels(test_data$changed_engine_transmission_battery)
 
 ```
 
@@ -174,7 +200,7 @@ test_data <- test_data %>%
   mutate(discharging_light_glowing_engine_transmission_battery = as.factor(discharging_light_glowing_engine_transmission_battery)) %>% 
   select(appointment_num:registration_date, discharging_light_glowing_engine_transmission_battery, everything(), -changed1, -changed2, -changed3, -changed4)
 
-levels(test_data$discharging_light_glowing_engine_transmission_battery)
+#levels(test_data$discharging_light_glowing_engine_transmission_battery)
 
 ```
 
@@ -202,7 +228,7 @@ test_data <- test_data %>%
   mutate(jump_start_engine_transmission_battery = as.factor(jump_start_engine_transmission_battery)) %>% 
   select(appointment_num:registration_date, jump_start_engine_transmission_battery, everything(), -changed1, -changed2, -changed3, -changed4)
 
-levels(test_data$jump_start_engine_transmission_battery)
+#levels(test_data$jump_start_engine_transmission_battery)
 
 ```
 
@@ -230,7 +256,7 @@ test_data <- test_data %>%
   mutate(not_working_engine_transmission_battery = as.factor(not_working_engine_transmission_battery)) %>% 
   select(appointment_num:registration_date, not_working_engine_transmission_battery, everything(), -changed1, -changed2, -changed3, -changed4)
 
-levels(test_data$not_working_engine_transmission_battery)
+#levels(test_data$not_working_engine_transmission_battery)
 
 ```
 
@@ -258,35 +284,40 @@ test_data <- test_data %>%
   mutate(weak_engine_transmission_battery = as.factor(weak_engine_transmission_battery)) %>% 
   select(appointment_num:registration_date, weak_engine_transmission_battery, everything(), -changed1, -changed2, -changed3, -changed4, -engine_transmission_battery_cc_value_0, -engine_transmission_battery_cc_value_1, -engine_transmission_battery_cc_value_2, -engine_transmission_battery_cc_value_3)
 
-levels(test_data$weak_engine_transmission_battery)
+#levels(test_data$weak_engine_transmission_battery)
 
 ```
 
 
 ```{r}
-levels(as.factor(test_data$engine_transmission_engine_oil_level_dipstick_cc_value_0))
+#levels(as.factor(test_data$engine_transmission_engine_oil_level_dipstick_cc_value_0))
 
 test_data <- test_data %>% 
   mutate(broken_engine_transmission_engine_oil_level_dipstick = if_else(engine_transmission_engine_oil_level_dipstick_cc_value_0 == "Broken", 1, 0, 0)) %>%
   mutate(broken_engine_transmission_engine_oil_level_dipstick = as.factor(broken_engine_transmission_engine_oil_level_dipstick)) %>% 
   select(appointment_num:changed_engine_transmission_battery, broken_engine_transmission_engine_oil_level_dipstick, everything(), -engine_transmission_engineoil_level_dipstick_value, -engine_transmission_engine_oil_level_dipstick_cc_value_0)
 
-levels(test_data$broken_engine_transmission_engine_oil_level_dipstick)
+#levels(test_data$broken_engine_transmission_engine_oil_level_dipstick)
 ```
 
+After all those lines of code, I know what you're thinking. Why didn't I use step_dummy to simplify and automate this process. Well that would be too easy. For some reason it wouldn't work.
+
+Continuing with my long and arduous process, I decided to use the same exact method on the transmission engine oil set of data. However, this time there were even more options input by the mechanics. They managed to fit 9 different possible values into 11 different columns and didn't worry about putting the common values into a single column. So I did it for them. Did I automate the process? No, I was still in the baby steps of my mechanics (pun intended). We'll get to automation later.
+
+Here: are the possible values that the mechanics assigned to the tranmission engine oil:
 
 ```{r}
 
 levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_0))
-levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_1))
-levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_2))
-levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_3))
-levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_4))
-levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_5))
-levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_6))
-levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_7))
-levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_8))
-levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_9))
+# levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_1))
+# levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_2))
+# levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_3))
+# levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_4))
+# levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_5))
+# levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_6))
+# levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_7))
+# levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_8))
+# levels(as.factor(test_data$engine_transmission_engine_oil_cc_value_9))
 ```
 
 ```{r}
@@ -324,7 +355,7 @@ test_data <- test_data %>%
   mutate(dirty_engine_transmission_engine_oil = as.factor(dirty_engine_transmission_engine_oil)) %>% 
   select(appointment_num:broken_engine_transmission_engine_oil_level_dipstick, dirty_engine_transmission_engine_oil, everything(), -changed1, -changed2, -changed3, -changed4, -changed5, -changed6, -changed7)
 
-levels(test_data$dirty_engine_transmission_engine_oil)
+#levels(test_data$dirty_engine_transmission_engine_oil)
 
 ```
 
@@ -364,7 +395,7 @@ test_data <- test_data %>%
   mutate(leakage_from_side_engine_transmission_engine_oil = as.factor(leakage_from_side_engine_transmission_engine_oil)) %>% 
   select(appointment_num:broken_engine_transmission_engine_oil_level_dipstick, leakage_from_side_engine_transmission_engine_oil, everything(), -changed1, -changed2, -changed3, -changed4, -changed5, -changed6, -changed7)
 
-levels(test_data$leakage_from_side_engine_transmission_engine_oil)
+#levels(test_data$leakage_from_side_engine_transmission_engine_oil)
 
 ```
 
@@ -404,7 +435,7 @@ test_data <- test_data %>%
   mutate(leakage_from_sump_chamber_engine_transmission_engine_oil = as.factor(leakage_from_sump_chamber_engine_transmission_engine_oil)) %>% 
   select(appointment_num:broken_engine_transmission_engine_oil_level_dipstick, leakage_from_sump_chamber_engine_transmission_engine_oil, everything(), -changed1, -changed2, -changed3, -changed4, -changed5, -changed6, -changed7)
 
-levels(test_data$leakage_from_sump_chamber_engine_transmission_engine_oil)
+#levels(test_data$leakage_from_sump_chamber_engine_transmission_engine_oil)
 
 ```
 
@@ -443,7 +474,7 @@ test_data <- test_data %>%
   mutate(leakage_from_tappet_cover_engine_transmission_engine_oil = as.factor(leakage_from_tappet_cover_engine_transmission_engine_oil)) %>% 
   select(appointment_num:broken_engine_transmission_engine_oil_level_dipstick, leakage_from_tappet_cover_engine_transmission_engine_oil, everything(), -changed1, -changed2, -changed3, -changed4, -changed5, -changed6, -changed7)
 
-levels(test_data$leakage_from_tappet_cover_engine_transmission_engine_oil)
+#levels(test_data$leakage_from_tappet_cover_engine_transmission_engine_oil)
 
 ```
 
@@ -482,7 +513,7 @@ test_data <- test_data %>%
   mutate(leaking_engine_transmission_engine_oil = as.factor(leaking_engine_transmission_engine_oil)) %>% 
   select(appointment_num:broken_engine_transmission_engine_oil_level_dipstick, leaking_engine_transmission_engine_oil, everything(), -changed1, -changed2, -changed3, -changed4, -changed5, -changed6, -changed7)
 
-levels(test_data$leaking_engine_transmission_engine_oil)
+#levels(test_data$leaking_engine_transmission_engine_oil)
 
 ```
 
@@ -522,7 +553,7 @@ test_data <- test_data %>%
   mutate(leakage_from_turbo_charger_engine_transmission_engine_oil = as.factor(leakage_from_turbo_charger_engine_transmission_engine_oil)) %>% 
   select(appointment_num:broken_engine_transmission_engine_oil_level_dipstick, leakage_from_turbo_charger_engine_transmission_engine_oil, everything(), -changed1, -changed2, -changed3, -changed4, -changed5, -changed6, -changed7)
 
-levels(test_data$leakage_from_turbo_charger_engine_transmission_engine_oil)
+#levels(test_data$leakage_from_turbo_charger_engine_transmission_engine_oil)
 
 ```
 
@@ -562,7 +593,7 @@ test_data <- test_data %>%
   mutate(mixed_with_coolant_engine_transmission_engine_oil = as.factor(mixed_with_coolant_engine_transmission_engine_oil)) %>% 
   select(appointment_num:broken_engine_transmission_engine_oil_level_dipstick, mixed_with_coolant_engine_transmission_engine_oil, everything(), -changed1, -changed2, -changed3, -changed4, -changed5, -changed6, -changed7)
 
-levels(test_data$mixed_with_coolant_engine_transmission_engine_oil)
+#levels(test_data$mixed_with_coolant_engine_transmission_engine_oil)
 
 ```
 
@@ -603,7 +634,7 @@ test_data <- test_data %>%
   mutate(low_pressure_warning_light_glowing_engine_transmission_engine_oil = as.factor(low_pressure_warning_light_glowing_engine_transmission_engine_oil)) %>% 
   select(appointment_num:broken_engine_transmission_engine_oil_level_dipstick, low_pressure_warning_light_glowing_engine_transmission_engine_oil, everything(), -changed1, -changed2, -changed3, -changed4, -changed5, -changed6, -changed7)
 
-levels(test_data$low_pressure_warning_light_glowing_engine_transmission_engine_oil)
+#levels(test_data$low_pressure_warning_light_glowing_engine_transmission_engine_oil)
 
 ```
 
@@ -647,23 +678,33 @@ test_data <- test_data %>%
 test_data <- test_data %>% 
   select(everything(), -engine_transmission_engine_oil, -engine_transmission_engine_oil_cc_value_0, -engine_transmission_engine_oil_cc_value_1, -engine_transmission_engine_oil_cc_value_2, -engine_transmission_engine_oil_cc_value_3, -engine_transmission_engine_oil_cc_value_4, -engine_transmission_engine_oil_cc_value_5, -engine_transmission_engine_oil_cc_value_6, -engine_transmission_engine_oil_cc_value_7, -engine_transmission_engine_oil_cc_value_8, -engine_transmission_engine_oil_cc_value_9)
 
-levels(test_data$level_low_engine_transmission_engine_oil)
+#levels(test_data$level_low_engine_transmission_engine_oil)
 
 ```
+
+The gears were beginning to turn in my mind. I had another 50 columns to go through. I was almost at 700 lines of code! I knew that I couldn't go on like this any more.
+
+I decided to attempt to automate my process. My first few attempts to write a function that could dynamically create variables, assign values to them, manipulate those newly created variables, combine them into a new dynamically named variable, and delete all of the columns that were no longer needed were rocky to say the least.
+
+![](Piston-Rings.jpg)
+
+However, after many hours of research and testing I was finally able to create a function that automated like... at least half of my work. Don't worry I still wrote 1500+ lines of code.
+
+Here are the variables that the mechanics used to describe the transmission itself.
 
 
 ```{r}
 
 levels(as.factor(test_data$engine_transmission_engine_cc_value_0))
-levels(as.factor(test_data$engine_transmission_engine_cc_value_1))
-levels(as.factor(test_data$engine_transmission_engine_cc_value_2))
-levels(as.factor(test_data$engine_transmission_engine_cc_value_3))
-levels(as.factor(test_data$engine_transmission_engine_cc_value_4))
-levels(as.factor(test_data$engine_transmission_engine_cc_value_5))
-levels(as.factor(test_data$engine_transmission_engine_cc_value_6))
-levels(as.factor(test_data$engine_transmission_engine_cc_value_7))
-levels(as.factor(test_data$engine_transmission_engine_cc_value_8))
-levels(as.factor(test_data$engine_transmission_engine_cc_value_9))
+# levels(as.factor(test_data$engine_transmission_engine_cc_value_1))
+# levels(as.factor(test_data$engine_transmission_engine_cc_value_2))
+# levels(as.factor(test_data$engine_transmission_engine_cc_value_3))
+# levels(as.factor(test_data$engine_transmission_engine_cc_value_4))
+# levels(as.factor(test_data$engine_transmission_engine_cc_value_5))
+# levels(as.factor(test_data$engine_transmission_engine_cc_value_6))
+# levels(as.factor(test_data$engine_transmission_engine_cc_value_7))
+# levels(as.factor(test_data$engine_transmission_engine_cc_value_8))
+# levels(as.factor(test_data$engine_transmission_engine_cc_value_9))
 ```
 
 
@@ -940,6 +981,8 @@ test_data <- test_data %>%
 # }}
 ```
 
+Things are getting into full swing here. As we continue, take a look at the 4 description those fabled mechanics used to describe the coolant they observed during their long, detailed, and highly flammable inspection:
+
 ```{r}
 
 levels(as.factor(test_data$engine_transmission_coolant_cc_value_0))
@@ -977,6 +1020,10 @@ test_data <- test_data %>%
 
 ```
 
+![A fabled mechanic.](mechanic with transmission.jpg)
+
+Variables describing engine mounting:
+
 ```{r}
 
 levels(as.factor(test_data$engine_transmission_engine_mounting_cc_value_0))
@@ -1011,6 +1058,7 @@ test_data <- test_data %>%
 
 ```
 
+We're running out of steam here but don't worry steam makes noise. In fact, here is the information the mechanics felt were important to tell us about the sound the transmission was making:
 
 ```{r}
 
@@ -1059,6 +1107,9 @@ test_data <- test_data %>%
 
 ```
 
+![Was this a random forest?](wildfire_768_60.jpg)
+
+But even better than the noise that steam makes... The noise smoke makes! And we all know where there's smoke there's fire. Did we mention how flammable transmission fluids are? Here's the relevant information (according to the mechanics) concerning smoke coming from the transmission.
 
 ```{r}
 
@@ -1105,6 +1156,10 @@ test_data <- test_data %>%
 
 ```
 
+Have you ever seen blue smoke?
+
+Me neither. Here's where we start getting a little technical. Or have we been the whole time? Yet more information the mechanics felt were important to tell us about the engine blowback:
+
 ```{r}
 
 test_data_copy <- test_data
@@ -1146,6 +1201,10 @@ test_data <- test_data %>%
   mutate(perm_blow_by_on_idle_engine_transmission_engine_blow_by_back_compression = as.factor(perm_blow_by_on_idle_engine_transmission_engine_blow_by_back_compression))
 
 ```
+
+![Zooooom](motorcycle.gif)
+
+I hope you're still paying attention! We haven't even gotten to the exciting stuff. The mechanics are telling us about the clutch next. I love clutch's. I'm not joking. I ride a motorcycle and when they say "that came in clutch" they also are not joking. If you don't know how to drive stick I highly recommend it. Back to the analysis:
 
 ```{r}
 
@@ -1195,6 +1254,8 @@ test_data <- test_data %>%
 
 ```
 
+And you know what you do with the clutch? You shift gears! So here's some data on that:
+
 ```{r}
 
 test_data_copy <- test_data
@@ -1233,6 +1294,8 @@ test_data <- test_data %>%
   mutate(not_engaging_engine_transmission_gear_shifting = as.factor(not_engaging_engine_transmission_gear_shifting))
 
 ```
+
+Finally, the mechanics left us some comments that they felt would not fit in any of the other categories.
 
 ```{r}
 
@@ -1283,6 +1346,8 @@ test_data <- test_data %>%
 
 ```
 
+But wait there's more! What fuel type does this vehicle use:
+
 ```{r}
 
 test_data_copy <- test_data
@@ -1294,6 +1359,82 @@ test_data <- test_data %>%
 
 ```
 
+## Exploratory Data Analysis
+
+Boy that took a while. But now we are here. 
+
+```{r}
+
+hist(data$rating_engine_transmission)
+
+test_data %>% 
+  group_by(rating_engine_transmission) %>% 
+  summarise(count = n())
+
+```
+
+We can see that the vast majority of transmissions are rated between 3 and 4 with a heavier tail towards 5. However, there is a small peak at value 1 on the thinly tailed other end. This suggests that transmissions start out at 5 but slowly age until suddenly they will become unusable.
+
+Next we will take a look at the distributions of a few of the newly created variables.
+
+```{r}
+
+test_data %>% 
+  ggplot(aes(x = weak_engine_transmission_battery)) +
+  geom_bar()
+
+table <- test_data %>% 
+  group_by(weak_engine_transmission_battery) %>% 
+  summarise(count = n())
+
+table[2,2]/table[1,2]
+
+test_data %>% 
+  ggplot(aes(x = broken_engine_transmission_engine_oil_level_dipstick)) +
+  geom_bar()
+
+table <- test_data %>% 
+  group_by(broken_engine_transmission_engine_oil_level_dipstick) %>% 
+  summarise(count = n())
+
+table[2,2]/table[1,2]
+
+test_data %>% 
+  ggplot(aes(x = sump_damaged_engine_transmission_engine)) +
+  geom_bar()
+
+table <- test_data %>% 
+  group_by(sump_damaged_engine_transmission_engine) %>% 
+  summarise(count = n())
+
+table[2,2]/table[1,2]
+
+```
+
+We can see that for each one of the afflictions that the categories can suffer from there is only a small percentage of them that do. Even a fairly common problem like having a weak battery is only barely more than 10% of the total population of vehicles inspected.
+
+```{r}
+
+cor_data_train <- test_data %>%
+  select(is.numeric) %>%
+  correlate(use="complete.obs")
+
+rplot(cor_data_train)
+
+# library(ggcorrplot)
+# model.matrix(rating_engine_transmission ~., data=test_data) %>% 
+#   cor(use="pairwise.complete.obs") %>% 
+#   ggcorrplot(show.diag = F, type="lower", lab=TRUE, lab_size=2)
+
+```
+Since the majority of my variables are categorical my correlation plot isn't the most meaningful. However, the major takeaways are that the more miles you have on your odometer the worse repair your transmission will be in. Additionally, I was able to get a plot that showed the pseudo correlation of the factors. However, because of the number of factors present in my data I was unable to render it onto your tiny tiny screen.
+
+![](forants.jpg)
+
+## Modeling
+
+We're getting to the fun stuff! Or so I thought.
+
 ```{r}
 
 set.seed(3435)
@@ -1304,8 +1445,15 @@ data_test <- testing(data_split)
 
 data_folds <- vfold_cv(data_train, v = 5, strata = "rating_engine_transmission")
 
-hist(data$rating_engine_transmission)
 ```
+
+After splitting my data into a training set and a testing set, I further split the training set into 5 folds. Nothing like a little k-fold cross validation to get my morning started in true fashion.
+
+I quickly gave my training data a recipe. This centered and scaled the data. Or at least told it to do it to itself later.
+
+### Linear Regression
+
+My first model would be a linear regression. Plain and simple, these models are surprisingly accurate and work well. 
 
 ```{r}
 
@@ -1329,7 +1477,6 @@ lm_wflow <- workflow() %>%
 
 lm_fit <- fit(lm_wflow, data_train)
 
-
 train_res <- predict(lm_fit, new_data = data_train)
 train_res <- bind_cols(train_res, data_train %>% select(rating_engine_transmission))
 
@@ -1343,62 +1490,17 @@ augment(lm_fit, new_data = data_test) %>%
 
 ```
 
-Roughly 43% of the variation in engine transmission rating is explained by this linear model.
+An astounding 43% of the variation in engine transmission rating is explained by this linear model. Once again I couldn't fit all of the coefficients on the screen so I'll save you the work and just tell you. 
 
-```{r}
+This linear model found that a smoking transmission was a bad sign. Who knew! Just how bad you might ask. Black smoke reduced the rating of the transmission by 0.21. White smoke only reduced the rating by 0.1 and Blue smoke only reduced the rating by 0.07. I'd still be worried about that blue smoke.
 
-data_train %>% 
-  ggplot(aes(x = weak_engine_transmission_battery)) +
-  geom_bar()
+![Not good](smoking engine.jpg)
 
-table <- data_train %>% 
-  group_by(weak_engine_transmission_battery) %>% 
-  summarise(count = n())
+There were some very obvious predictors. For example, if the car was not in working condition (and towing was required) the model predicted the transmission rating would be 0.55 lower. If the engine was seized (melted together) the rating was reduced by 0.26.
 
-table[2,2]/table[1,2]
+However, it's not all bad news. There were some predictors that added to the transmission rating. According to this model if your car is electric the transmission will be rated .49 higher than otherwise. Furthermore, if you change the transmission's battery it increases your rating by 0.22.
 
-data_train %>% 
-  ggplot(aes(x = broken_engine_transmission_engine_oil_level_dipstick)) +
-  geom_bar()
-
-table <- data_train %>% 
-  group_by(broken_engine_transmission_engine_oil_level_dipstick) %>% 
-  summarise(count = n())
-
-table[2,2]/table[1,2]
-
-data_train %>% 
-  ggplot(aes(x = sump_damaged_engine_transmission_engine)) +
-  geom_bar()
-
-table <- data_train %>% 
-  group_by(sump_damaged_engine_transmission_engine) %>% 
-  summarise(count = n())
-
-table[2,2]/table[1,2]
-
-```
-
-```{r}
-
-cor_data_train <- data_train %>%
-  select(is.numeric) %>%
-  correlate(use="complete.obs")
-
-rplot(cor_data_train)
-
-```
-
-```{r}
-
-data_train %>% 
-  group_by(rating_engine_transmission) %>% 
-  summarise(count = n())
-
-
-
-```
-
+![Energy is POWER](lightning.webp)
 
 ```{r}
 
@@ -1414,7 +1516,9 @@ data_train %>%
 
 ```
 
+### Decision Tree Regression
 
+Remember we were talking about fire earlier? Yeah we'll get back to that. My computer was heating up but don't worry it didn't quite catch on fire (yet) while I ran the 50 models to test which cost complexity would create the most accurate decision tree regression model.
 
 ```{r}
 
@@ -1443,13 +1547,18 @@ load(file = "tune_res1.rda")
 autoplot(tune_res1)
 
 
-head(filter(arrange(collect_metrics(tune_res1), mean), .metric == "mae"))
+filter(arrange(collect_metrics(tune_res1), mean), .metric == "mae")[1,]
 
-head(filter(arrange(collect_metrics(tune_res1), mean), .metric == "rmse"))
+filter(arrange(collect_metrics(tune_res1), mean), .metric == "rmse")[1,]
 
-head(filter(arrange(collect_metrics(tune_res1), desc(mean)), .metric == "rsq"))
+filter(arrange(collect_metrics(tune_res1), desc(mean)), .metric == "rsq")[1,]
+
+```
+
+As it turns out, despite all the computational power thrown into this model it still under-performed the simple standard linear regression on every metric.
 
 
+```{r}
 best_complexity <- select_best(tune_res1)
 
 class_tree_final <- finalize_workflow(class_tree_wf, best_complexity)
@@ -1459,6 +1568,11 @@ class_tree_final_fit <- fit(class_tree_final, data = data_train)
 class_tree_final_fit %>%
   extract_fit_engine() %>%
   rpart.plot()
+```
+
+Look at that beatiful tree! Too bad it didn't end up helping us make accurate predictions.
+
+```{r}
 
 augment(class_tree_final_fit, new_data = data_test) %>%
   ggplot(aes(rating_engine_transmission, .pred)) +
@@ -1467,6 +1581,17 @@ augment(class_tree_final_fit, new_data = data_test) %>%
 augment(class_tree_final_fit, new_data = data_test) %>%
   rmse(truth = rating_engine_transmission, estimate = .pred)
 ```
+
+After pluggin our test data into the model we can see that it is quite innacurate. The variation on the prediction is going to give me nightmares.
+
+### Random Forest Regression
+
+At this point I was really excited. I set up my tuning grid and prepared to stare blankly at my screen while the computer did all the work. Take that AI overlords! I hit ctrl-enter and waited. And waited... At some point I started a stopwatch. Two hours after that it was still running. My poor little laptop was the little engine that could. Oh yeah, remember when we mentioned fire? Yeah, this forest was doing worse than California during a drought. My laptop was heating up. 
+
+The next morning I sat down at my laptop to take a final for another class. On the very final problem I noticed something strange. Windows was no longer responding! And then the screen went black. The terror that filled my heart. Let me tell you. It was something. Not only was my 2 hours of work on my final gone but possibly everything that I hadn't pushed to GIT for this final project. 
+
+Alas, 4 tiny screwdrivers later and a piece of tape later my laptop was back in gear. However, I made the decision that tuning on this ancient equipment was something to be saved for another day. Consequently, my arguments are using constant values instead of ranges.
+
 ```{r}
 
 reg_rf_spec <- rand_forest() %>%
@@ -1501,6 +1626,11 @@ load(file = "reg_rf__fit.rda")
 reg_rf__fit %>%
   pull_workflow_fit()%>%
   vip()
+```
+
+However, this forest was able to give us something that no previous model had! A vip list of variables based on their relative importance. Registration date took the lead by far. I believe this is because the registration date gives us some information on the age of the vehicle. As a second, odometer reading gives us a similar piece of information. How much has this car been used. Interestingly, none of the same variables as the linear model came up. However, if your car is making noises it may be time to take it to the mechanic. Also, keep it clean! (and avoid petrol, electric is the future).
+
+```{r}
 
 augment(reg_rf__fit, new_data = data_test) %>%
   ggplot(aes(rating_engine_transmission, .pred)) +
@@ -1508,7 +1638,19 @@ augment(reg_rf__fit, new_data = data_test) %>%
 
 augment(reg_rf__fit, new_data = data_test) %>%
   rmse(truth = rating_engine_transmission, estimate = .pred)
+
+augment(reg_rf__fit, new_data = data_test) %>%
+  rsq(truth = rating_engine_transmission, estimate = .pred)
+
+augment(reg_rf__fit, new_data = data_test) %>%
+  mae(truth = rating_engine_transmission, estimate = .pred)
 ```
+
+And this model explained 73% of the variation! I'm so proud.
+
+### Boosted Tree Regression
+
+After my success with the Random Forest I was prepared to move on to Boosted Trees.
 
 ```{r}
 
@@ -1548,7 +1690,15 @@ augment(reg_rf_fit2, new_data = data_test) %>%
 
 augment(reg_rf_fit2, new_data = data_test) %>%
   rmse(truth = rating_engine_transmission, estimate = .pred)
+
+augment(reg_rf_fit2, new_data = data_test) %>%
+  rsq(truth = rating_engine_transmission, estimate = .pred)
+
+augment(reg_rf_fit2, new_data = data_test) %>%
+  mae(truth = rating_engine_transmission, estimate = .pred)
 ```
+
+However, this turned out to be a dissapointment. Perhaps it was my hesitation to resort to tuning after the fiasco with the previous model. Maybe not. Either way this model performed worse than my beloved linear regression.
 
 ```{r}
 # Lab 7
@@ -1583,6 +1733,9 @@ augment(reg_rf_fit2, new_data = data_test) %>%
 
 ```
 
+I considered moving on to deep learning with this data set. However, I think I will need to upgrade my hardware before doing so.
+
+
 ```{r}
 
 # svm_linear_spec <- svm_poly(degree = 1) %>%
@@ -1597,3 +1750,11 @@ augment(reg_rf_fit2, new_data = data_test) %>%
 # svm_linear_fit
 
 ```
+
+# Conclusion
+
+I put a lot of work into this assignment. I learned a lot about writing functions in R something I didn't come into this class expecting to do. To have a function writing and accessing columns in a data frame that were created by the function itself is not as easy to implement as I had thought it would be (I didn't think it would be easy). I also met with success when I created a model that predicted 73% of the variation. I look forward to days (in the hopeful near future) when I will be able to run deep learning programs on my upgraded hardware.
+
+![Oh, wait Mario is a plumber not a mechanic.](mario-go-down-in-tube-wave.gif)
+
+Thank you for a delightful quarter!
